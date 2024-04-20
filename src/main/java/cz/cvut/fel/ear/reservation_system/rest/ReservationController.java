@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/rest/reservations")
 @PreAuthorize("hasAnyAuthority('ADMIN', 'STANDARD_USER')")
+@CrossOrigin(origins="*")
 public class ReservationController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
