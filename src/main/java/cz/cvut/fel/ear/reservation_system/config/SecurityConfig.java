@@ -70,9 +70,9 @@ public class SecurityConfig {
         // This behavior can be restricted later.
         CorsConfiguration configuration = new CorsConfiguration();
         // AllowCredentials requires a particular origin configured, * is rejected by the browser
-//        configuration.setAllowCredentials(true);
 //        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowCredentials(true);
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

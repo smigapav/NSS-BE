@@ -19,7 +19,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @RestController
 @RequestMapping("/rest/users")
-@CrossOrigin(origins="*")
 public class UserController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
