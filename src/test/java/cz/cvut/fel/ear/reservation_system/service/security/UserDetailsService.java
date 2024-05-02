@@ -12,7 +12,6 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     private final UserDao userDao;
 
-    @Autowired
     public UserDetailsService(UserDao userDao) {
         this.userDao = userDao;
     }

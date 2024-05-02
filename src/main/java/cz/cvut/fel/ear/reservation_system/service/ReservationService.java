@@ -16,7 +16,6 @@ import java.util.Objects;
 @Service
 public class ReservationService {
     private final ReservationDao reservationDao;
-    @Autowired
     public ReservationService(ReservationDao reservationDao) {
         this.reservationDao = reservationDao;
     }

@@ -18,7 +18,6 @@ public class UserService {
     private final UserDao dao;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserService(UserDao dao, PasswordEncoder passwordEncoder) {
         this.dao = dao;
         this.passwordEncoder = passwordEncoder;

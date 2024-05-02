@@ -20,7 +20,6 @@ public class RoomService {
     private final RoomDao dao;
     private final ReservationDao reservationDao;
 
-    @Autowired
     public RoomService(RoomDao dao, ReservationDao reservationDao) {
         this.dao = dao;
         this.reservationDao = reservationDao;
@@ -69,7 +68,7 @@ public class RoomService {
             LocalDateTime existingFrom = i.getDateFrom();
             LocalDateTime existingTo = i.getDateTo();
 
-            if ((from.isBefore(existingTo) && to.isAfter(existingFrom)) || to.isAfter(existingFrom) && to.isBefore(existingTo)) {
+            if (from.isBefore(existingTo) && to.isAfter(existingFrom)) {
                 return false;
             }
         }

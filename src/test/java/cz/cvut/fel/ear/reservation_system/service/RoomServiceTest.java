@@ -24,8 +24,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
@@ -62,18 +61,18 @@ public class RoomServiceTest {
     {
         List<Room> rooms = sut.getAllRooms();
 
-        assertTrue(!rooms.isEmpty());
+        assertFalse(rooms.isEmpty());
     }
 
     @Test
-    public void isAvailableReturnsTrue()
+    public void isAvailableReturnsFalse()
     {
         LocalDateTime from = LocalDateTime.of(2015,
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();
 
         
-        assertTrue(sut.isAvailable(from, to, room));
+        assertFalse(sut.isAvailable(from, to, room));
     }
 
     @Test
@@ -83,7 +82,7 @@ public class RoomServiceTest {
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();
 
-        assertTrue(!sut.findAvailableRooms(from, to).isEmpty());
+        assertFalse(sut.findAvailableRooms(from, to).isEmpty());
     }
 
 }

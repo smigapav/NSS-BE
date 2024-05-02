@@ -44,7 +44,6 @@ public class ReservationController {
 
     private final OrderService orderService;
 
-    @Autowired
     public ReservationController(ReservationService reservationService, RoomService roomService, UserService userService, OrderService orderService) {
         this.reservationService = reservationService;
         this.roomService = roomService;
