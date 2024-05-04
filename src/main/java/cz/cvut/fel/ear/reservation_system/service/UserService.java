@@ -1,5 +1,6 @@
 package cz.cvut.fel.ear.reservation_system.service;
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
+import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.model.User;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -32,28 +34,26 @@ public class UserService implements CRUDOperations<User> {
         if (user.getRole() == null) {
             user.setRole(Constants.DEFAULT_ROLE);
         }
-        dao.persist(user);
+        dao.save(user);
     }
 
     @Transactional
     @Override
     public void update(User user) {
-        dao.update(user);
+        dao.save(user);
     }
 
     @Transactional(readOnly = true)
     @Override
     public User read(Integer id) {
-        return dao.find(id);
+        return dao.findById(id).orElse(null);
     }
 
     @Transactional
     @Override
     public void delete(Integer id) {
-        User user = dao.find(id);
-        if (user != null) {
-            dao.remove(user);
-        }
+        Optional<User> user = dao.findById(id);
+        user.ifPresent(dao::delete);
     }
 
     @Transactional(readOnly = true)
@@ -64,24 +64,24 @@ public class UserService implements CRUDOperations<User> {
 
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
-        return dao.findByEmail(email);
+        return dao.findByEmail(email).orElse(null);
     }
 
     @Transactional(readOnly = true)
-    public User findByPhone(String phone) {
-        return dao.findByPhone(phone);
+    public User findByPhone(Phone phone) {
+        return dao.findByPhone(phone).orElse(null);
     }
 
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        return dao.findByUsername(username);
+        return dao.findByUsername(username).orElse(null);
     }
 
     @Transactional
     public void assignRole(User user, Role role) {
         user.setRole(role);
 
-        dao.persist(user);
+        dao.save(user);
     }
 
     @Transactional(readOnly = true)

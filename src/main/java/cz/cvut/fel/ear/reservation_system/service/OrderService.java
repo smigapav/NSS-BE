@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class OrderService implements CRUDOperations<Order> {
@@ -23,28 +24,26 @@ public class OrderService implements CRUDOperations<Order> {
     @Transactional
     public void create(Order order){
         Objects.requireNonNull(order);
-        orderDao.persist(order);
+        orderDao.save(order);
     }
 
     @Override
     @Transactional
     public void delete(Integer id){
-        Order order = orderDao.find(id);
-        if(order != null){
-            orderDao.remove(order);
-        }
+        Optional<Order> order = orderDao.findById(id);
+        order.ifPresent(orderDao::delete);
     }
 
     @Override
     @Transactional
     public void update(Order order) {
-        orderDao.update(order);
+        orderDao.save(order);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Order read(Integer id){
-        return orderDao.find(id);
+        return orderDao.findById(id).orElse(null);
     }
 
     @Override
@@ -60,6 +59,6 @@ public class OrderService implements CRUDOperations<Order> {
 
     @Transactional(readOnly = true)
     public Order findByReservation(Reservation reservation){
-            return orderDao.findByReservation(reservation);
+            return orderDao.findByReservation(reservation).orElse(null);
     }
 }

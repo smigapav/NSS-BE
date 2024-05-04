@@ -61,7 +61,7 @@ public class ReservationController {
             reservation.setCreatedAt(LocalDateTime.now());
             reservation.setStatus(ReservationStatus.NOT_PAID);
 
-            reservationService.persist(reservation);
+            reservationService.create(reservation);
             LOG.debug("Created reservation {}.", reservation);
             final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", reservation.getId());
             return new ResponseEntity<>(headers, HttpStatus.CREATED);
@@ -72,7 +72,7 @@ public class ReservationController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "edit")
     public ResponseEntity<String> editReservation(Authentication authentication, @RequestBody(required = false) Reservation reservation) {
-        Reservation existingReservation = reservationService.find(reservation.getId());
+        Reservation existingReservation = reservationService.read(reservation.getId());
 
         if (existingReservation == null) {
             return new ResponseEntity<>("Reservation not found.", HttpStatus.NOT_FOUND);
@@ -127,7 +127,7 @@ public class ReservationController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "storno")
     public ResponseEntity<String> stornoReservation(Principal principal, @RequestBody(required = false) Reservation reservation) {
-        Reservation existingReservation = reservationService.find(reservation.getId());
+        Reservation existingReservation = reservationService.read(reservation.getId());
 
         if (existingReservation == null) {
             return new ResponseEntity<>("Reservation not found.", HttpStatus.NOT_FOUND);
@@ -155,7 +155,7 @@ public class ReservationController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "pay")
     public ResponseEntity<String> payReservation(Principal principal, @RequestBody(required = false) Reservation reservation) {
-        Reservation existingReservation = reservationService.find(reservation.getId());
+        Reservation existingReservation = reservationService.read(reservation.getId());
 
         if (existingReservation == null) {
             return new ResponseEntity<>("Reservation not found.", HttpStatus.NOT_FOUND);

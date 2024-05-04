@@ -1,21 +1,14 @@
 package cz.cvut.fel.ear.reservation_system.dao;
 
 import cz.cvut.fel.ear.reservation_system.model.Room;
+import cz.cvut.fel.ear.reservation_system.model.User;
 import jakarta.persistence.NoResultException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public class RoomDao extends BaseDao<Room> {
-
-    public RoomDao() { super(Room.class); }
-
-    public Room findByName(String name) {
-        try {
-            return em.createNamedQuery("Room.findByName", Room.class)
-                    .setParameter("name", name)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
+public interface RoomDao extends JpaRepository<Room, Integer> {
+    Optional<Room> findByName(String name);
 }

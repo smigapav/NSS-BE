@@ -51,7 +51,7 @@ public class UserServiceTest {
 
     @Test
     public void persistSetsRoleToStandardUser() {
-        sut.persist(user);
+        sut.create(user);
 
         User newUser = em.find(User.class, user.getId());
 

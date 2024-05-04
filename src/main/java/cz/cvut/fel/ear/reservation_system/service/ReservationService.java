@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class ReservationService implements CRUDOperations<Reservation>{
@@ -27,27 +28,25 @@ public class ReservationService implements CRUDOperations<Reservation>{
         if (reservation.getStatus() == null) {
             reservation.setStatus(Constants.DEFAULT_STATUS);
         }
-        reservationDao.persist(reservation);
+        reservationDao.save(reservation);
     }
     @Transactional
     @Override
     public void delete(Integer id){
-        Reservation reservation = reservationDao.find(id);
-        if(reservation != null){
-            reservationDao.remove(reservation);
-        }
+        Optional<Reservation> reservation = reservationDao.findById(id);
+        reservation.ifPresent(reservationDao::delete);
     }
 
     @Transactional
     @Override
     public void update(Reservation reservation) {
-        reservationDao.update(reservation);
+        reservationDao.save(reservation);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Reservation read(Integer id){
-        return reservationDao.find(id);
+        return reservationDao.findById(id).orElse(null);
     }
 
     @Transactional(readOnly = true)

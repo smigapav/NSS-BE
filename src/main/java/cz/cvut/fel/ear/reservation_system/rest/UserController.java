@@ -38,7 +38,7 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(@RequestBody User user) {
         user.setRole(Role.STANDARD_USER);
-        userService.persist(user);
+        userService.create(user);
         LOG.debug("User {} successfully registered.", user);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/current");
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
@@ -70,7 +70,7 @@ public class UserController {
             user.setPhone(updatedUser.getPhone());
         }
 
-        userService.persist(user);
+        userService.create(user);
         LOG.debug("User {} successfully updated by admin.", user);
 
         return new ResponseEntity<>(HttpStatus.OK);

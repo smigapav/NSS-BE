@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.reservation_system.service;
 import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
+import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,28 +30,26 @@ public class RoomService implements CRUDOperations<Room>{
     public void create(Room room) {
         Objects.requireNonNull(room);
 
-        dao.persist(room);
+        dao.save(room);
     }
 
     @Transactional
     @Override
     public void delete(Integer id) {
-        Room room = dao.find(id);
-        if (room != null) {
-            dao.remove(room);
-        }
+        Optional<Room> room = dao.findById(id);
+        room.ifPresent(dao::delete);
     }
 
     @Transactional
     @Override
     public void update(Room room) {
-        dao.update(room);
+        dao.save(room);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Room read(Integer id) {
-        return dao.find(id);
+        return dao.findById(id).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -60,12 +60,12 @@ public class RoomService implements CRUDOperations<Room>{
 
     @Transactional(readOnly = true)
     public Room findByName(String name) {
-        return dao.findByName(name);
+        return dao.findByName(name).orElse(null);
     }
 
     @Transactional(readOnly = true)
     public boolean isAvailable(LocalDateTime from, LocalDateTime to, Room room) {
-        List<Reservation> res = reservationDao.findByRoomAndActive(room);
+        List<Reservation> res = reservationDao.findByRoomAndActive(room, List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
 
         return res.stream()
             .noneMatch(i -> {
