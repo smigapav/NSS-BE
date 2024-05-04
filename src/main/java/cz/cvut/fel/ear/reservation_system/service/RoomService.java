@@ -4,15 +4,13 @@ import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.Room;
-import cz.cvut.fel.ear.reservation_system.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class RoomService {
@@ -64,31 +62,20 @@ public class RoomService {
     public boolean isAvailable(LocalDateTime from, LocalDateTime to, Room room) {
         List<Reservation> res = reservationDao.findByRoomAndActive(room);
 
-        for (Reservation i : res) {
-            LocalDateTime existingFrom = i.getDateFrom();
-            LocalDateTime existingTo = i.getDateTo();
-
-            if (from.isBefore(existingTo) && to.isAfter(existingFrom)) {
-                return false;
-            }
-        }
-
-        return true;
+        return res.stream()
+            .noneMatch(i -> {
+                LocalDateTime existingFrom = i.getDateFrom();
+                LocalDateTime existingTo = i.getDateTo();
+                return from.isBefore(existingTo) && to.isAfter(existingFrom);
+            });
     }
 
     @Transactional(readOnly = true)
     public List<Room> findAvailableRooms(LocalDateTime from, LocalDateTime to) {
-        List<Room> availableRooms = new ArrayList<>();
-
         List<Room> allRooms = dao.findAll();
 
-        for (Room room : allRooms) {
-            if (isAvailable(from, to, room)) {
-                availableRooms.add(room);
-            }
-        }
-
-        return availableRooms;
+        return allRooms.stream()
+                .filter(room -> isAvailable(from, to, room))
+                .collect(Collectors.toList());
     }
-
 }

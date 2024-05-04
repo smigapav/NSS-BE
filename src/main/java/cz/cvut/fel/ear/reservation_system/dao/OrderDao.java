@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Repository
 public class OrderDao extends BaseDao<Order> {
@@ -29,14 +31,9 @@ public class OrderDao extends BaseDao<Order> {
                 .setParameter("user", user)
                 .getResultList();
 
-        List<Order> orders = new ArrayList<>();
-        for (Reservation reservation : reservations) {
-            Order order = findByReservation(reservation);
-            if (order != null) {
-                orders.add(order);
-            }
-        }
-
-        return orders;
+        return reservations.stream()
+                .map(this::findByReservation)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }
