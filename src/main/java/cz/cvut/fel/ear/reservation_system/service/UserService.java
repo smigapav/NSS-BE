@@ -9,11 +9,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 
 @Service
-public class UserService {
+public class UserService implements CRUDOperations<User> {
 
     private final UserDao dao;
     private final PasswordEncoder passwordEncoder;
@@ -24,7 +25,8 @@ public class UserService {
     }
 
     @Transactional
-    public void persist(User user) {
+    @Override
+    public void create(User user) {
         Objects.requireNonNull(user);
         user.encodePassword(passwordEncoder);
         if (user.getRole() == null) {
@@ -34,8 +36,30 @@ public class UserService {
     }
 
     @Transactional
+    @Override
     public void update(User user) {
         dao.update(user);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public User read(Integer id) {
+        return dao.find(id);
+    }
+
+    @Transactional
+    @Override
+    public void delete(Integer id) {
+        User user = dao.find(id);
+        if (user != null) {
+            dao.remove(user);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<User> listAll() {
+        return dao.findAll();
     }
 
     @Transactional(readOnly = true)

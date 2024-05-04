@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class RoomService {
+public class RoomService implements CRUDOperations<Room>{
 
     private final RoomDao dao;
     private final ReservationDao reservationDao;
@@ -24,13 +24,15 @@ public class RoomService {
     }
 
     @Transactional
-    public void persist(Room room) {
+    @Override
+    public void create(Room room) {
         Objects.requireNonNull(room);
 
         dao.persist(room);
     }
 
     @Transactional
+    @Override
     public void delete(Integer id) {
         Room room = dao.find(id);
         if (room != null) {
@@ -39,17 +41,20 @@ public class RoomService {
     }
 
     @Transactional
+    @Override
     public void update(Room room) {
         dao.update(room);
     }
 
     @Transactional(readOnly = true)
-    public Room find(Integer id) {
+    @Override
+    public Room read(Integer id) {
         return dao.find(id);
     }
 
     @Transactional(readOnly = true)
-    public List<Room> getAllRooms() {
+    @Override
+    public List<Room> listAll() {
         return dao.findAll();
     }
 

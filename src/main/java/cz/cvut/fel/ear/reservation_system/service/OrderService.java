@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class OrderService {
+public class OrderService implements CRUDOperations<Order> {
 
     private final OrderDao orderDao;
 
@@ -19,11 +19,14 @@ public class OrderService {
         this.orderDao = orderDao;
     }
 
+    @Override
     @Transactional
-    public void persist(Order order){
+    public void create(Order order){
         Objects.requireNonNull(order);
         orderDao.persist(order);
     }
+
+    @Override
     @Transactional
     public void delete(Integer id){
         Order order = orderDao.find(id);
@@ -32,18 +35,21 @@ public class OrderService {
         }
     }
 
+    @Override
     @Transactional
     public void update(Order order) {
         orderDao.update(order);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public Order find(int id){
+    public Order read(Integer id){
         return orderDao.find(id);
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<Order> findAll(){
+    public List<Order> listAll(){
         return orderDao.findAll();
     }
 
@@ -56,8 +62,4 @@ public class OrderService {
     public Order findByReservation(Reservation reservation){
             return orderDao.findByReservation(reservation);
     }
-
-
 }
-
-

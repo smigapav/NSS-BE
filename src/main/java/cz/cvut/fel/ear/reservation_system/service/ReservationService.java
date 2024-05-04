@@ -14,14 +14,15 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ReservationService {
+public class ReservationService implements CRUDOperations<Reservation>{
     private final ReservationDao reservationDao;
     public ReservationService(ReservationDao reservationDao) {
         this.reservationDao = reservationDao;
     }
 
     @Transactional
-    public void persist(Reservation reservation){
+    @Override
+    public void create(Reservation reservation){
         Objects.requireNonNull(reservation);
         if (reservation.getStatus() == null) {
             reservation.setStatus(Constants.DEFAULT_STATUS);
@@ -29,6 +30,7 @@ public class ReservationService {
         reservationDao.persist(reservation);
     }
     @Transactional
+    @Override
     public void delete(Integer id){
         Reservation reservation = reservationDao.find(id);
         if(reservation != null){
@@ -37,17 +39,20 @@ public class ReservationService {
     }
 
     @Transactional
+    @Override
     public void update(Reservation reservation) {
         reservationDao.update(reservation);
     }
 
     @Transactional(readOnly = true)
-    public Reservation find(int id){
+    @Override
+    public Reservation read(Integer id){
         return reservationDao.find(id);
     }
 
     @Transactional(readOnly = true)
-    public List<Reservation> findAll(){
+    @Override
+    public List<Reservation> listAll(){
         return reservationDao.findAll();
     }
 
