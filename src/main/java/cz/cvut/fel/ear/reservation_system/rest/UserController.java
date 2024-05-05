@@ -1,10 +1,10 @@
 package cz.cvut.fel.ear.reservation_system.rest;
 
-import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.rest.util.RestUtils;
 import cz.cvut.fel.ear.reservation_system.security.model.UserDetails;
 import cz.cvut.fel.ear.reservation_system.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -18,13 +18,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rest/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     /**
      * Registers a new user.
@@ -34,7 +32,6 @@ public class UserController {
     @PreAuthorize("(!#user.isAdmin() && anonymous) || hasAuthority('ADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(@RequestBody User user) {
-        user.setRole(Role.STANDARD_USER);
         userService.create(user);
         LOG.debug("User {} successfully registered.", user);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/current");

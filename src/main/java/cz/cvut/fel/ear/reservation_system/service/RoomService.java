@@ -5,6 +5,7 @@ import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,21 +16,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoomService implements CRUDOperations<Room> {
 
     private final RoomDao dao;
     private final ReservationDao reservationDao;
 
-    public RoomService(RoomDao dao, ReservationDao reservationDao) {
-        this.dao = dao;
-        this.reservationDao = reservationDao;
-    }
-
     @Transactional
     @Override
     public void create(Room room) {
         Objects.requireNonNull(room);
-
         dao.save(room);
     }
 

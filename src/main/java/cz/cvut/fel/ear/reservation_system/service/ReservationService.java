@@ -1,12 +1,13 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
-import cz.cvut.fel.ear.reservation_system.exception.PermissionDeniedException;
-import cz.cvut.fel.ear.reservation_system.exception.ReservationConflictException;
-import cz.cvut.fel.ear.reservation_system.exception.ReservationNotFoundException;
+import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
+import cz.cvut.fel.ear.reservation_system.exception.*;
+import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
-import cz.cvut.fel.ear.reservation_system.exception.RoomNotAvailableException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +18,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationService implements CRUDOperations<Reservation> {
     private final ReservationDao reservationDao;
     private final RoomService roomService;
     private final OrderService orderService;
-
-    public ReservationService(ReservationDao reservationDao, RoomService roomService, OrderService orderService) {
-        this.reservationDao = reservationDao;
-        this.roomService = roomService;
-        this.orderService = orderService;
-    }
 
     @Transactional
     @Override
@@ -79,13 +75,14 @@ public class ReservationService implements CRUDOperations<Reservation> {
     }
 
     @Transactional
-    public Reservation createReservationIfRoomAvailable(User user, Reservation reservation) {
+    public ReservationDTO createReservationIfRoomAvailable(User user, ReservationDTO reservationDTO) {
+        Reservation reservation = ReservationMapper.INSTANCE.INSTANCE.dtoToReservation(reservationDTO);
         Room room = reservation.getRoom();
         LocalDateTime from = reservation.getDateFrom();
         LocalDateTime to = reservation.getDateTo();
 
         if (!roomService.isAvailable(from, to, room)) {
-            throw new RoomNotAvailableException("The room is not available for the specified dates.");
+            throw new RoomNotAvailableException(HttpStatus.CONFLICT, "The room is not available for the specified dates.");
         }
 
         reservation.setUser(user);
@@ -94,20 +91,21 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
         create(reservation);
 
-        return reservation;
+        return ReservationMapper.INSTANCE.reservationToDto(reservation);
     }
 
     @Transactional
-    public Reservation editReservationIfPossible(User currentUser, Reservation reservation) {
+    public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
+        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
         Reservation existingReservation = read(reservation.getId());
 
         if (existingReservation == null) {
-            throw new ReservationNotFoundException("Reservation not found.");
+            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
         }
 
         if ((!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) ||
                 !existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException("You don't have permission to edit this reservation.");
+            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to edit this reservation.");
         }
 
         if (currentUser.getRole().equals(Role.STANDARD_USER)) {
@@ -115,7 +113,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
             existingReservation.setDateTo(reservation.getDateTo());
 
             if (!roomService.isAvailable(existingReservation.getDateFrom(), existingReservation.getDateTo(), existingReservation.getRoom())) {
-                throw new ReservationConflictException("The updated reservation conflicts with existing reservations.");
+                throw new ReservationConflictException(HttpStatus.CONFLICT, "The updated reservation conflicts with existing reservations.");
             }
         }
 
@@ -139,19 +137,20 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
         update(existingReservation);
 
-        return existingReservation;
+        return ReservationMapper.INSTANCE.reservationToDto(reservation);
     }
 
     @Transactional
-    public Reservation stornoReservationIfPossible(User currentUser, Reservation reservation) {
+    public ReservationDTO stornoReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
+        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
         Reservation existingReservation = read(reservation.getId());
 
         if (existingReservation == null) {
-            throw new ReservationNotFoundException("Reservation not found.");
+            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
         }
 
         if (!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException("You don't have permission to cancel this reservation.");
+            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to cancel this reservation.");
         }
 
         if (existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) {
@@ -159,24 +158,25 @@ public class ReservationService implements CRUDOperations<Reservation> {
         } else if (existingReservation.getStatus().equals(ReservationStatus.PAID)) {
             existingReservation.setStatus(ReservationStatus.STORNO_REQUEST);
         } else {
-            throw new IllegalArgumentException("You cannot cancel this reservation.");
+            throw new CancellationNotAllowedException(HttpStatus.BAD_REQUEST, "You cannot cancel this reservation.");
         }
 
         update(existingReservation);
 
-        return existingReservation;
+        return ReservationMapper.INSTANCE.reservationToDto(existingReservation);
     }
 
     @Transactional
-    public Reservation payReservationIfPossible(User currentUser, Reservation reservation) {
+    public ReservationDTO payReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
+        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
         Reservation existingReservation = read(reservation.getId());
 
         if (existingReservation == null) {
-            throw new ReservationNotFoundException("Reservation not found.");
+            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
         }
 
         if (!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException("You don't have permission to pay this reservation.");
+            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to pay this reservation.");
         }
 
         Order order = orderService.findByReservation(existingReservation);
@@ -197,11 +197,29 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
             existingReservation.setStatus(ReservationStatus.CANCELLED);
         } else {
-            throw new IllegalArgumentException("You cannot pay this reservation.");
+            throw new PaymentNotAllowedException(HttpStatus.BAD_REQUEST, "You cannot pay this reservation.");
         }
 
         update(existingReservation);
 
-        return existingReservation;
+        return ReservationMapper.INSTANCE.reservationToDto(existingReservation);
+    }
+
+    public String getStornoEndpointBody(Reservation updatedReservation) {
+        if (updatedReservation.getStatus().equals(ReservationStatus.CANCELLED)) {
+            return "Reservation has been cancelled successfully.";
+        } else if (updatedReservation.getStatus().equals(ReservationStatus.STORNO_REQUEST)) {
+            return "Your storno request has been submitted, proceed with payment.";
+        }
+        return null;
+    }
+
+    public String getPayEndpointBody(Reservation updatedReservation) {
+        if (updatedReservation.getStatus().equals(ReservationStatus.CANCELLED)) {
+            return "Reservation has been cancelled successfully.";
+        } else if (updatedReservation.getStatus().equals(ReservationStatus.PAID)) {
+            return "Reservation has been paid successfully.";
+        }
+        return null;
     }
 }

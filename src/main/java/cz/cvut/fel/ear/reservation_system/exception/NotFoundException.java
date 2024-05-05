@@ -1,19 +1,14 @@
 package cz.cvut.fel.ear.reservation_system.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 /**
  * Indicates that a resource was not found.
  */
-public class NotFoundException extends EarException {
+public class NotFoundException extends ResponseStatusException {
 
-    public NotFoundException(String message) {
-        super(message);
-    }
-
-    public NotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public static NotFoundException create(String resourceName, Object identifier) {
-        return new NotFoundException(resourceName + " identified by " + identifier + " not found.");
+    public NotFoundException(HttpStatus status, String message) {
+        super(status, message);
     }
 }

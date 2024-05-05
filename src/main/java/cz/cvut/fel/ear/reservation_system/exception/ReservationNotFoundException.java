@@ -1,7 +1,10 @@
 package cz.cvut.fel.ear.reservation_system.exception;
 
-public class ReservationNotFoundException extends RuntimeException {
-    public ReservationNotFoundException(String message) {
-        super(message);
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+public class ReservationNotFoundException extends ResponseStatusException {
+    public ReservationNotFoundException(HttpStatus status, String message) {
+        super(status, message);
     }
 }

@@ -1,10 +1,13 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
+import cz.cvut.fel.ear.reservation_system.exception.UserNotFoundException;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,20 +18,17 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements CRUDOperations<User> {
 
     private final UserDao dao;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserDao dao, PasswordEncoder passwordEncoder) {
-        this.dao = dao;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Transactional
     @Override
     public void create(User user) {
         Objects.requireNonNull(user);
+        user.setRole(Role.STANDARD_USER);
         user.encodePassword(passwordEncoder);
         if (user.getRole() == null) {
             user.setRole(Constants.DEFAULT_ROLE);
@@ -93,7 +93,7 @@ public class UserService implements CRUDOperations<User> {
     User existingUser = findByUsername(updatedUser.getUsername());
 
     if (existingUser == null) {
-        throw new UsernameNotFoundException("User not found.");
+        throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found.");
     }
 
     if (updatedUser.getRole() != null) {

@@ -2,6 +2,7 @@ package cz.cvut.fel.ear.reservation_system.rest;
 
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.service.RoomService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/rest/rooms")
 @CrossOrigin(origins="*")
+@RequiredArgsConstructor
 public class RoomController {
 
     private final RoomService roomService;
-
-    public RoomController(RoomService roomService) {
-        this.roomService = roomService;
-    }
-
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Room>> listAllRooms(
             @RequestParam(value = "from", required = false) LocalDateTime fromDate,

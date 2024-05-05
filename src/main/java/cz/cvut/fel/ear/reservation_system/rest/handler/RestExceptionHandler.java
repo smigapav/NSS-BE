@@ -46,7 +46,7 @@ public class RestExceptionHandler {
         // Not necessary to log NotFoundException, they may be quite frequent and do not
         // represent an issue with the
         // application
-        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorInfo(request, e), e.getStatusCode());
     }
 
     @ExceptionHandler(InsufficientAmountException.class)

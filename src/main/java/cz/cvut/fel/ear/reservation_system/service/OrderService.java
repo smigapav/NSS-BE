@@ -4,6 +4,7 @@ import cz.cvut.fel.ear.reservation_system.dao.OrderDao;
 import cz.cvut.fel.ear.reservation_system.model.Order;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService implements CRUDOperations<Order> {
 
     private final OrderDao orderDao;
-
-    public OrderService(OrderDao orderDao) {
-        this.orderDao = orderDao;
-    }
 
     @Override
     @Transactional
