@@ -1,6 +1,5 @@
 package cz.cvut.fel.ear.reservation_system.dao;
 
-
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
@@ -21,5 +20,6 @@ public interface ReservationDao extends JpaRepository<Reservation, Integer> {
     List<Reservation> findByRoom(Room room);
 
     @Query("SELECT r FROM Reservation r WHERE r.room = :room AND r.status IN (:statuses)")
-    List<Reservation> findByRoomAndActive(@Param("room") Room room, @Param("statuses") List<ReservationStatus> statuses);
+    List<Reservation> findByRoomAndActive(@Param("room") Room room,
+                                          @Param("statuses") List<ReservationStatus> statuses);
 }
