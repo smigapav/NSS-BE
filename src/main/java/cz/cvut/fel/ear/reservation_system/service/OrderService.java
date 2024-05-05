@@ -22,14 +22,14 @@ public class OrderService implements CRUDOperations<Order> {
 
     @Override
     @Transactional
-    public void create(Order order){
+    public void create(Order order) {
         Objects.requireNonNull(order);
         orderDao.save(order);
     }
 
     @Override
     @Transactional
-    public void delete(Integer id){
+    public void delete(Integer id) {
         Optional<Order> order = orderDao.findById(id);
         order.ifPresent(orderDao::delete);
     }
@@ -42,23 +42,23 @@ public class OrderService implements CRUDOperations<Order> {
 
     @Override
     @Transactional(readOnly = true)
-    public Order read(Integer id){
+    public Order read(Integer id) {
         return orderDao.findById(id).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Order> listAll(){
+    public List<Order> listAll() {
         return orderDao.findAll();
     }
 
     @Transactional(readOnly = true)
-    public List<Order> findByUser(User user){
+    public List<Order> findByUser(User user) {
         return orderDao.findAllOrdersByUser(user);
     }
 
     @Transactional(readOnly = true)
-    public Order findByReservation(Reservation reservation){
-            return orderDao.findByReservation(reservation).orElse(null);
+    public Order findByReservation(Reservation reservation) {
+        return orderDao.findByReservation(reservation).orElse(null);
     }
 }

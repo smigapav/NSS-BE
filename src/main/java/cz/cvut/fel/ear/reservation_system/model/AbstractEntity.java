@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.reservation_system.model;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
 

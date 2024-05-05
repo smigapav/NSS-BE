@@ -3,8 +3,6 @@ package cz.cvut.fel.ear.reservation_system.environment;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.Random;
 

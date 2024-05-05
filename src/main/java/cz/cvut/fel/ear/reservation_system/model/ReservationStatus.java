@@ -1,13 +1,7 @@
 package cz.cvut.fel.ear.reservation_system.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-
 public enum ReservationStatus {
-    NOT_PAID("NOT_PAID"),
-    CANCELLED("CANCELLED"),
-    PAID("PAID"),
-    STORNO_REQUEST("STORNO_REQUEST"),
+    NOT_PAID("NOT_PAID"), CANCELLED("CANCELLED"), PAID("PAID"), STORNO_REQUEST("STORNO_REQUEST"),
 
     COMPLETED("COMPLETED");
 

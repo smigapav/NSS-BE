@@ -14,8 +14,9 @@ import java.io.IOException;
 
 /**
  * Returns info about authentication failure.
- *
- * Differs from default implementation in that it returns a custom JSON response.
+ * <p>
+ * Differs from default implementation in that it returns a custom JSON
+ * response.
  */
 public class AuthenticationFailure implements AuthenticationFailureHandler {
 

@@ -13,9 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "room", schema = "public")
-@NamedQueries({
-        @NamedQuery(name = "Room.findByName", query = "SELECT r FROM Room r WHERE r.name = :name")
-})
+@NamedQueries({@NamedQuery(name = "Room.findByName", query = "SELECT r FROM Room r WHERE r.name = :name")})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Getter
 @Setter
@@ -35,13 +33,11 @@ public class Room extends AbstractEntity {
     private Double stornoFee;
 
     @ManyToMany
-    @JoinTable(name = "room_equipment",
-            joinColumns = @JoinColumn(name = "room_id"),
-            inverseJoinColumns = @JoinColumn(name = "equipment_id"))
+    @JoinTable(name = "room_equipment", joinColumns = @JoinColumn(name = "room_id"), inverseJoinColumns = @JoinColumn(name = "equipment_id"))
     private Set<Equipment> equipment;
 
     @OneToMany(mappedBy = "room")
-    @JsonManagedReference(value="room-reservations")
+    @JsonManagedReference(value = "room-reservations")
     @JsonIgnore
     private Set<Reservation> reservations = new LinkedHashSet<>();
 }

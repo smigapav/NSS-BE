@@ -1,11 +1,11 @@
 package cz.cvut.fel.ear.reservation_system.service;
+
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
-import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 
 @Service
 public class UserService implements CRUDOperations<User> {
@@ -86,7 +85,29 @@ public class UserService implements CRUDOperations<User> {
 
     @Transactional(readOnly = true)
     public boolean exists(String username) {
-        return dao.findByUsername(username) != null;
+        return dao.findByUsername(username).isPresent();
     }
 
+    @Transactional
+    public User editUserIfPossible(User updatedUser) {
+    User existingUser = findByUsername(updatedUser.getUsername());
+
+    if (existingUser == null) {
+        throw new UsernameNotFoundException("User not found.");
+    }
+
+    if (updatedUser.getRole() != null) {
+        existingUser.setRole(updatedUser.getRole());
+    }
+    if (updatedUser.getEmail() != null) {
+        existingUser.setEmail(updatedUser.getEmail());
+    }
+    if (updatedUser.getPhone() != null) {
+        existingUser.setPhone(updatedUser.getPhone());
+    }
+
+    create(existingUser);
+
+    return existingUser;
+}
 }

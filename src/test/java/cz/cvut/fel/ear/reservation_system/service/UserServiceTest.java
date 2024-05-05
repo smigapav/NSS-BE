@@ -1,15 +1,11 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
-import cz.cvut.fel.ear.reservation_system.dao.UserDao;
 import cz.cvut.fel.ear.reservation_system.environment.Generator;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -19,13 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.sound.midi.Soundbank;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Transactional
@@ -41,7 +31,7 @@ public class UserServiceTest {
     @Autowired
     private UserService sut;
 
-    private User user = Generator.generateUser();
+    private final User user = Generator.generateUser();
 
     @BeforeEach
     public void setUp() {

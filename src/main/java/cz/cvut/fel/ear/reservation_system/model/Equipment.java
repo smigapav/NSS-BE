@@ -22,6 +22,6 @@ public class Equipment extends AbstractEntity {
     private String name;
 
     @ManyToMany(mappedBy = "equipment")
-    @JsonBackReference(value="room-equipment")
+    @JsonBackReference(value = "room-equipment")
     private Set<Room> rooms;
 }

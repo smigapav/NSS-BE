@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class RoomService implements CRUDOperations<Room>{
+public class RoomService implements CRUDOperations<Room> {
 
     private final RoomDao dao;
     private final ReservationDao reservationDao;
@@ -65,22 +65,22 @@ public class RoomService implements CRUDOperations<Room>{
 
     @Transactional(readOnly = true)
     public boolean isAvailable(LocalDateTime from, LocalDateTime to, Room room) {
-        List<Reservation> res = reservationDao.findByRoomAndActive(room, List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
+        List<Reservation> res = reservationDao.findByRoomAndActive(room,
+                List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
 
-        return res.stream()
-            .noneMatch(i -> {
-                LocalDateTime existingFrom = i.getDateFrom();
-                LocalDateTime existingTo = i.getDateTo();
-                return from.isBefore(existingTo) && to.isAfter(existingFrom);
-            });
+        return res.stream().noneMatch(i -> {
+            LocalDateTime existingFrom = i.getDateFrom();
+            LocalDateTime existingTo = i.getDateTo();
+            return from.isBefore(existingTo) && to.isAfter(existingFrom);
+        });
     }
 
     @Transactional(readOnly = true)
     public List<Room> findAvailableRooms(LocalDateTime from, LocalDateTime to) {
         List<Room> allRooms = dao.findAll();
 
-        return allRooms.stream()
-                .filter(room -> isAvailable(from, to, room))
-                .collect(Collectors.toList());
+        LocalDateTime finalFrom = from != null ? from : LocalDateTime.now();
+        LocalDateTime finalTo = to != null ? to : LocalDateTime.now().plusDays(7);
+        return allRooms.stream().filter(room -> isAvailable(finalFrom, finalTo, room)).collect(Collectors.toList());
     }
 }

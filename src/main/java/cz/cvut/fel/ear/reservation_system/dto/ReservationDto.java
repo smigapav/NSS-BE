@@ -1,8 +1,7 @@
 package cz.cvut.fel.ear.reservation_system.dto;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
-import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
-import net.bytebuddy.asm.Advice;
 
 import java.time.LocalDateTime;
 

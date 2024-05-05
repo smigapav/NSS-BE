@@ -7,24 +7,21 @@ import cz.cvut.fel.ear.reservation_system.security.model.UserDetails;
 import cz.cvut.fel.ear.reservation_system.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @RestController
 @RequestMapping("/rest/users")
 public class UserController {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
-
     private final UserService userService;
-
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -53,27 +50,13 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> editUser(@RequestBody User updatedUser) {
-
-        User user = userService.findByUsername(updatedUser.getUsername());
-
-        if (user == null) {
+        try {
+            User user = userService.editUserIfPossible(updatedUser);
+            LOG.debug("User {} successfully updated by admin.", user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        if (updatedUser.getRole() != null) {
-            user.setRole(updatedUser.getRole());
-        }
-        if (updatedUser.getEmail() != null) {
-            user.setEmail(updatedUser.getEmail());
-        }
-        if (updatedUser.getPhone() != null) {
-            user.setPhone(updatedUser.getPhone());
-        }
-
-        userService.create(user);
-        LOG.debug("User {} successfully updated by admin.", user);
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

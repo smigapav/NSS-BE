@@ -18,12 +18,12 @@ public class Reservation extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "`user`", nullable = false)
-    @JsonBackReference(value="user-reservations")
+    @JsonBackReference(value = "user-reservations")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "room", nullable = false)
-    @JsonBackReference(value="room-reservations")
+    @JsonBackReference(value = "room-reservations")
     private Room room;
 
     @Column(name = "date_from", nullable = false)

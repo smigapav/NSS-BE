@@ -20,7 +20,7 @@ import java.util.Set;
 public class User extends AbstractEntity {
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference(value="user-reservations")
+    @JsonManagedReference(value = "user-reservations")
     @JsonIgnore
     private Set<Reservation> reservations = new LinkedHashSet<>();
 

@@ -2,7 +2,6 @@ package cz.cvut.fel.ear.reservation_system.service.security;
 
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
 import cz.cvut.fel.ear.reservation_system.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

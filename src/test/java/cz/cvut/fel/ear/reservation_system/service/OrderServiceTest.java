@@ -21,9 +21,6 @@ public class OrderServiceTest {
     @MockBean
     private OrderDao orderDao;
 
-    @MockBean
-    private ReservationDao reservationDao;
-
     @Autowired
     private OrderService sut;
     private Order order;
