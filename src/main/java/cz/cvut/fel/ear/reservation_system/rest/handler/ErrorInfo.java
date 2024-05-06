@@ -1,7 +1,8 @@
 package cz.cvut.fel.ear.reservation_system.rest.handler;
 
 /**
- * Contains information about an error and can be sent to client as JSON to let them know what went wrong.
+ * Contains information about an error and can be sent to client as JSON to let
+ * them know what went wrong.
  */
 public class ErrorInfo {
 

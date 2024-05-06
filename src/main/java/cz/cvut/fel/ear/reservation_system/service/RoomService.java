@@ -3,93 +3,80 @@ package cz.cvut.fel.ear.reservation_system.service;
 import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
+import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
-import cz.cvut.fel.ear.reservation_system.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class RoomService {
+@RequiredArgsConstructor
+public class RoomService implements CRUDOperations<Room> {
 
     private final RoomDao dao;
     private final ReservationDao reservationDao;
 
-    @Autowired
-    public RoomService(RoomDao dao, ReservationDao reservationDao) {
-        this.dao = dao;
-        this.reservationDao = reservationDao;
-    }
-
     @Transactional
-    public void persist(Room room) {
+    @Override
+    public void create(Room room) {
         Objects.requireNonNull(room);
-
-        dao.persist(room);
+        dao.save(room);
     }
 
     @Transactional
+    @Override
     public void delete(Integer id) {
-        Room room = dao.find(id);
-        if (room != null) {
-            dao.remove(room);
-        }
+        Optional<Room> room = dao.findById(id);
+        room.ifPresent(dao::delete);
     }
 
     @Transactional
+    @Override
     public void update(Room room) {
-        dao.update(room);
+        dao.save(room);
     }
 
     @Transactional(readOnly = true)
-    public Room find(Integer id) {
-        return dao.find(id);
+    @Override
+    public Room read(Integer id) {
+        return dao.findById(id).orElse(null);
     }
 
     @Transactional(readOnly = true)
-    public List<Room> getAllRooms() {
+    @Override
+    public List<Room> listAll() {
         return dao.findAll();
     }
 
     @Transactional(readOnly = true)
     public Room findByName(String name) {
-        return dao.findByName(name);
+        return dao.findByName(name).orElse(null);
     }
 
     @Transactional(readOnly = true)
     public boolean isAvailable(LocalDateTime from, LocalDateTime to, Room room) {
-        List<Reservation> res = reservationDao.findByRoomAndActive(room);
+        List<Reservation> res = reservationDao.findByRoomAndActive(room,
+                List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
 
-        for (Reservation i : res) {
+        return res.stream().noneMatch(i -> {
             LocalDateTime existingFrom = i.getDateFrom();
             LocalDateTime existingTo = i.getDateTo();
-
-            if ((from.isBefore(existingTo) && to.isAfter(existingFrom)) || to.isAfter(existingFrom) && to.isBefore(existingTo)) {
-                return false;
-            }
-        }
-
-        return true;
+            return from.isBefore(existingTo) && to.isAfter(existingFrom);
+        });
     }
 
     @Transactional(readOnly = true)
     public List<Room> findAvailableRooms(LocalDateTime from, LocalDateTime to) {
-        List<Room> availableRooms = new ArrayList<>();
-
         List<Room> allRooms = dao.findAll();
 
-        for (Room room : allRooms) {
-            if (isAvailable(from, to, room)) {
-                availableRooms.add(room);
-            }
-        }
-
-        return availableRooms;
+        LocalDateTime finalFrom = from != null ? from : LocalDateTime.now();
+        LocalDateTime finalTo = to != null ? to : LocalDateTime.now().plusDays(7);
+        return allRooms.stream().filter(room -> isAvailable(finalFrom, finalTo, room)).collect(Collectors.toList());
     }
-
 }

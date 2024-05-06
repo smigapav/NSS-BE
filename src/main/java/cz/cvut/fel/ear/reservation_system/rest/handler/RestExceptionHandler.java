@@ -1,6 +1,9 @@
 package cz.cvut.fel.ear.reservation_system.rest.handler;
 
-import cz.cvut.fel.ear.reservation_system.exception.*;
+import cz.cvut.fel.ear.reservation_system.exception.InsufficientAmountException;
+import cz.cvut.fel.ear.reservation_system.exception.NotFoundException;
+import cz.cvut.fel.ear.reservation_system.exception.PersistenceException;
+import cz.cvut.fel.ear.reservation_system.exception.ValidationException;
 import cz.cvut.fel.ear.reservation_system.security.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -14,9 +17,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 /**
  * Exception handlers for REST controllers.
  * <p>
- * The general pattern should be that unless an exception can be handled in a more appropriate place it bubbles up to a
- * REST controller which originally received the request. There, it is caught by this handler, logged and a reasonable
- * error message is returned to the user.
+ * The general pattern should be that unless an exception can be handled in a
+ * more appropriate place it bubbles up to a REST controller which originally
+ * received the request. There, it is caught by this handler, logged and a
+ * reasonable error message is returned to the user.
  */
 @ControllerAdvice
 public class RestExceptionHandler {
@@ -39,8 +43,10 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorInfo> resourceNotFound(HttpServletRequest request, NotFoundException e) {
-        // Not necessary to log NotFoundException, they may be quite frequent and do not represent an issue with the application
-        return new ResponseEntity<>(errorInfo(request, e), HttpStatus.NOT_FOUND);
+        // Not necessary to log NotFoundException, they may be quite frequent and do not
+        // represent an issue with the
+        // application
+        return new ResponseEntity<>(errorInfo(request, e), e.getStatusCode());
     }
 
     @ExceptionHandler(InsufficientAmountException.class)
@@ -57,8 +63,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorInfo> accessDenied(HttpServletRequest request, AccessDeniedException e) {
-        // Spring Boot throws Access Denied when trying to access a secured method with anonymous authentication token
-        // We want to let such exception out, so that it is handled by the authentication entry point (which returns 401)
+        // Spring Boot throws Access Denied when trying to access a secured method with
+        // anonymous authentication token
+        // We want to let such exception out, so that it is handled by the
+        // authentication entry point (which returns
+        // 401)
         if (SecurityUtils.isAuthenticatedAnonymously()) {
             throw e;
         }

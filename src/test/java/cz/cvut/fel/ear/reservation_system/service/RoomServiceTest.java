@@ -1,43 +1,27 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
-import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
-import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
-import cz.cvut.fel.ear.reservation_system.dao.UserDao;
 import cz.cvut.fel.ear.reservation_system.model.Room;
-import cz.cvut.fel.ear.reservation_system.model.User;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 @AutoConfigureTestEntityManager
-@TestPropertySource(locations = "classpath:application-test.properties")
-@ActiveProfiles("test")
-@ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
 
     @Autowired
-    private TestEntityManager em;
+    private EntityManager em;
 
     @Autowired
     private RoomService sut;
@@ -46,7 +30,14 @@ public class RoomServiceTest {
 
     @BeforeEach
     public void setUp() {
-        room = em.find(Room.class, 5);
+        room = new Room();
+        room.setName("Test room");
+        room.setCapacity(10);
+        room.setHourlyRate(100.0);
+        room.setStornoFee(10.0);
+        em.persist(room);
+        em.flush();
+        // Set other properties of the room
     }
 
     @Test
@@ -60,19 +51,19 @@ public class RoomServiceTest {
     @Test
     public void getAllRoomsReturnsSomeRooms()
     {
-        List<Room> rooms = sut.getAllRooms();
+        List<Room> rooms = sut.listAll();
 
-        assertTrue(!rooms.isEmpty());
+        assertFalse(rooms.isEmpty());
     }
 
     @Test
-    public void isAvailableReturnsTrue()
+    public void isAvailableReturnsFalse()
     {
         LocalDateTime from = LocalDateTime.of(2015,
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();
 
-        
+
         assertTrue(sut.isAvailable(from, to, room));
     }
 
@@ -83,7 +74,6 @@ public class RoomServiceTest {
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();
 
-        assertTrue(!sut.findAvailableRooms(from, to).isEmpty());
+        assertFalse(sut.findAvailableRooms(from, to).isEmpty());
     }
-
 }

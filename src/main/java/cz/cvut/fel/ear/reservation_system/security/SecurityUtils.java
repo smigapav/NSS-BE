@@ -20,7 +20,8 @@ public class SecurityUtils {
     /**
      * Gets details of the currently authenticated user.
      *
-     * @return Currently authenticated user details or null, if no one is currently authenticated
+     * @return Currently authenticated user details or null, if no one is currently
+     * authenticated
      */
     public static UserDetails getCurrentUserDetails() {
         final SecurityContext context = SecurityContextHolder.getContext();

@@ -1,12 +1,11 @@
 package cz.cvut.fel.ear.reservation_system.dto;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
-import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
-import net.bytebuddy.asm.Advice;
 
 import java.time.LocalDateTime;
 
-public class ReservationDto {
+public class ReservationDTO {
     @JsonProperty("id")
     private int id;
     @JsonProperty("dateFrom")
@@ -36,24 +35,6 @@ public class ReservationDto {
     @JsonProperty("totalPrice")
     private Double totalPrice;
 
-    public ReservationDto() {
+    public ReservationDTO() {
     }
-
-    public ReservationDto(Reservation reservation) {
-        this.id = reservation.getId();
-        this.dateFrom = reservation.getDateFrom();
-        this.dateTo = reservation.getDateTo();
-        this.createdAt = reservation.getCreatedAt();
-        this.status = reservation.getStatus().toString();
-
-        this.userId = reservation.getUser().getId();
-        this.userName = reservation.getUser().getUsername();
-
-        this.roomId = reservation.getRoom().getId();
-        this.roomName = reservation.getRoom().getName();
-
-        this.confirmedAt = reservation.getOrder().getConfirmedAt();
-        this.totalPrice = reservation.getOrder().getTotalPrice();
-    }
-
 }

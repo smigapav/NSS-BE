@@ -1,12 +1,11 @@
 package cz.cvut.fel.ear.reservation_system.exception;
 
-public class PersistenceException extends EarException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-    public PersistenceException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class PersistenceException extends ResponseStatusException {
 
-    public PersistenceException(Throwable cause) {
-        super(cause);
+    public PersistenceException(HttpStatus status, String message, Throwable cause) {
+        super(status, message, cause);
     }
 }

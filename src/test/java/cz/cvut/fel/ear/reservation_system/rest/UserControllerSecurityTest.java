@@ -74,7 +74,7 @@ public class UserControllerSecurityTest extends BaseControllerTestRunner {
         mockMvc.perform(
                         post("/rest/users").content(toJson(toRegister)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isCreated());
-        verify(userService).persist(any(User.class));
+        verify(userService).create(any(User.class));
     }
 
     @WithAnonymousUser
@@ -86,7 +86,7 @@ public class UserControllerSecurityTest extends BaseControllerTestRunner {
         mockMvc.perform(
                         post("/rest/users").content(toJson(toRegister)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isUnauthorized());
-        verify(userService, never()).persist(any());
+        verify(userService, never()).create(any());
     }
 
     @WithMockUser
@@ -100,7 +100,7 @@ public class UserControllerSecurityTest extends BaseControllerTestRunner {
         mockMvc.perform(
                         post("/rest/users").content(toJson(toRegister)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isForbidden());
-        verify(userService, never()).persist(any());
+        verify(userService, never()).create(any());
     }
 
 

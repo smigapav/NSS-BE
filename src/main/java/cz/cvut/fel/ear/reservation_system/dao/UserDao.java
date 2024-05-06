@@ -1,41 +1,17 @@
 package cz.cvut.fel.ear.reservation_system.dao;
 
+import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.User;
-import jakarta.persistence.NoResultException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public class UserDao extends BaseDao<User> {
+public interface UserDao extends JpaRepository<User, Integer> {
+    Optional<User> findByEmail(String email);
 
-    public UserDao() { super(User.class); }
+    Optional<User> findByPhone(Phone phone);
 
-    public User findByEmail(String email) {
-        try {
-            return em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-    public User findByPhone(String phone) {
-        try {
-            return em.createQuery("SELECT u FROM User u WHERE u.phone = :phone", User.class)
-                    .setParameter("phone", phone)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    public User findByUsername(String username) {
-        try {
-            return em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
-                    .setParameter("username", username)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
+    Optional<User> findByUsername(String username);
 }
-

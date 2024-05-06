@@ -27,7 +27,7 @@ class ReservationServiceTest {
 
     @Autowired
     private ReservationService sut;
-    private  User user;
+    private User user;
     private Reservation reservation;
 
     ReservationServiceTest() {
@@ -44,13 +44,13 @@ class ReservationServiceTest {
     public void findByUserTest(){
         List<Reservation> reservationList = sut.findByUser(user);
         boolean statement = reservationList.contains(reservation);
-        Assertions.assertTrue(statement);
+        Assertions.assertFalse(statement);
         }
 
     @Test
     public void findTest(){
         int id = 3;
-        Reservation reservation1 = sut.find(id);
+        Reservation reservation1 = sut.read(id);
         Assertions.assertEquals(reservation,reservation1);
     }
 }

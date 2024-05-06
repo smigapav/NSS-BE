@@ -1,19 +1,22 @@
 package cz.cvut.fel.ear.reservation_system.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "room", schema = "public")
-@NamedQueries({
-        @NamedQuery(name = "Room.findByName", query = "SELECT r FROM Room r WHERE r.name = :name")
-})
+@NamedQueries({@NamedQuery(name = "Room.findByName", query = "SELECT r FROM Room r WHERE r.name = :name")})
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@Getter
+@Setter
 public class Room extends AbstractEntity {
 
     @Column(name = "capacity", nullable = false)
@@ -30,62 +33,11 @@ public class Room extends AbstractEntity {
     private Double stornoFee;
 
     @ManyToMany
-    @JoinTable(name = "room_equipment",
-            joinColumns = @JoinColumn(name = "room_id"),
-            inverseJoinColumns = @JoinColumn(name = "equipment_id"))
+    @JoinTable(name = "room_equipment", joinColumns = @JoinColumn(name = "room_id"), inverseJoinColumns = @JoinColumn(name = "equipment_id"))
     private Set<Equipment> equipment;
 
     @OneToMany(mappedBy = "room")
-    @JsonManagedReference(value="room-reservations")
+    @JsonManagedReference(value = "room-reservations")
     @JsonIgnore
     private Set<Reservation> reservations = new LinkedHashSet<>();
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getHourlyRate() {
-        return hourlyRate;
-    }
-
-    public void setHourlyRate(Double hourlyRate) {
-        this.hourlyRate = hourlyRate;
-    }
-
-    public Double getStornoFee() {
-        return stornoFee;
-    }
-
-    public void setStornoFee(Double stornoFee) {
-        this.stornoFee = stornoFee;
-    }
-
-    public Set<Equipment> getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(Set<Equipment> equipment) {
-        this.equipment = equipment;
-    }
-
-    public Set<Reservation> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(Set<Reservation> reservations) {
-        this.reservations = reservations;
-    }
-
 }
