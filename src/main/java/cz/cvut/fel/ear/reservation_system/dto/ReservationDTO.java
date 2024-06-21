@@ -1,7 +1,7 @@
 package cz.cvut.fel.ear.reservation_system.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import cz.cvut.fel.ear.reservation_system.model.Order;
 import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.model.User;
@@ -17,10 +17,10 @@ public class ReservationDTO {
     @JsonProperty("id")
     private Integer id;
 
-    @JsonIgnore
+    @JsonProperty("user")
     private User user;
 
-    @JsonIgnore
+    @JsonProperty("room")
     private Room room;
 
     @JsonProperty("dateFrom")
@@ -33,6 +33,9 @@ public class ReservationDTO {
 
     @JsonProperty("status")
     private ReservationStatus status;
+
+    @JsonProperty("order")
+    private Order order;
 
     public ReservationDTO() {
     }
