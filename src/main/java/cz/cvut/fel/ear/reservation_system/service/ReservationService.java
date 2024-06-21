@@ -85,7 +85,6 @@ public class ReservationService implements CRUDOperations<Reservation> {
             throw new RoomNotAvailableException(HttpStatus.CONFLICT, "The room is not available for the specified dates.");
         }
 
-        reservation.setUser(user);
         reservation.setCreatedAt(LocalDateTime.now());
         reservation.setStatus(ReservationStatus.NOT_PAID);
 
@@ -168,9 +167,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     @Transactional
     public ReservationDTO payReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
-        Reservation existingReservation = read(reservation.getId());
-
+        Reservation existingReservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
         if (existingReservation == null) {
             throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
         }

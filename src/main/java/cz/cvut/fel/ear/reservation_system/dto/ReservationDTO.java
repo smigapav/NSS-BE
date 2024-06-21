@@ -18,10 +18,10 @@ public class ReservationDTO {
     private Integer id;
 
     @JsonProperty("user")
-    private User user;
+    private UserDTO user;
 
     @JsonProperty("room")
-    private Room room;
+    private RoomDTO room;
 
     @JsonProperty("dateFrom")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -31,11 +31,12 @@ public class ReservationDTO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTo;
 
+    @JsonProperty("createdAt")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime createdAt;
+
     @JsonProperty("status")
     private ReservationStatus status;
-
-    @JsonProperty("order")
-    private Order order;
 
     public ReservationDTO() {
     }
