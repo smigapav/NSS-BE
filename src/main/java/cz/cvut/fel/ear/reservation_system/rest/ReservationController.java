@@ -1,18 +1,12 @@
 package cz.cvut.fel.ear.reservation_system.rest;
 
 import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
-import cz.cvut.fel.ear.reservation_system.exception.PermissionDeniedException;
-import cz.cvut.fel.ear.reservation_system.exception.ReservationConflictException;
-import cz.cvut.fel.ear.reservation_system.exception.ReservationNotFoundException;
-import cz.cvut.fel.ear.reservation_system.exception.RoomNotAvailableException;
+import cz.cvut.fel.ear.reservation_system.exception.*;
 import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
 import cz.cvut.fel.ear.reservation_system.rest.util.RestUtils;
-import cz.cvut.fel.ear.reservation_system.service.OrderService;
-import cz.cvut.fel.ear.reservation_system.service.ReservationService;
-import cz.cvut.fel.ear.reservation_system.service.RoomService;
-import cz.cvut.fel.ear.reservation_system.service.UserService;
+import cz.cvut.fel.ear.reservation_system.service.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +35,9 @@ public class ReservationController {
     private static final Logger LOG = LoggerFactory.getLogger(ReservationController.class);
 
     private final ReservationService reservationService;
-    private final RoomService roomService;
     private final UserService userService;
     private final OrderService orderService;
+    private final CleanUpService cleanupService;
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "create")
@@ -135,5 +129,14 @@ public class ReservationController {
                 .collect(Collectors.toList());
     }
 
+    @PostMapping(value = "cleanup")
+    public ResponseEntity<Void> deleteNotPaidReservationsLessThanOneDayFromNow(@RequestHeader String apiKey) {
+        try {
+            cleanupService.deleteNotPaidReservationsLessThanOneDayFromNow(apiKey);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (InvalidApiKeyException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
 }
 

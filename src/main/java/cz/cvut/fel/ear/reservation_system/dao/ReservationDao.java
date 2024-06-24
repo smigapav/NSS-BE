@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,4 +23,8 @@ public interface ReservationDao extends JpaRepository<Reservation, Integer> {
     @Query("SELECT r FROM Reservation r WHERE r.room = :room AND r.status IN (:statuses)")
     List<Reservation> findByRoomAndActive(@Param("room") Room room,
                                           @Param("statuses") List<ReservationStatus> statuses);
+
+    @Query("SELECT r FROM Reservation r WHERE r.status = :status AND r.dateFrom < :date")
+    List<Reservation> findByStatusAndDateFromBefore(@Param("status") ReservationStatus status, @Param("date") LocalDateTime date);
+
 }
