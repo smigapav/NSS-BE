@@ -2,14 +2,16 @@ package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
 import cz.cvut.fel.ear.reservation_system.dto.UserDTO;
-import cz.cvut.fel.ear.reservation_system.exception.UserNotFoundException;
 import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.GenericLoggingFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.UserTransformationFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.UserValidFilter;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +82,6 @@ public class UserService implements CRUDOperations<User> {
     @Transactional
     public void assignRole(User user, Role role) {
         user.setRole(role);
-
         dao.save(user);
     }
 
@@ -91,33 +92,15 @@ public class UserService implements CRUDOperations<User> {
 
     @Transactional
     public User editUserIfPossible(UserDTO updatedUserDTO, String username) {
-    User updatedUser = UserMapper.INSTANCE.dtoToUser(updatedUserDTO);
-    User existingUser = findByUsername(username);
-    if (existingUser == null) {
-        throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found.");
-    }
-    if (updatedUser.getRole() != null) {
-        existingUser.setRole(updatedUser.getRole());
-    }
-    if (updatedUser.getPassword() != null) {
-        existingUser.setPassword(updatedUser.getPassword());
-        existingUser.encodePassword(passwordEncoder);
-    }
-    if (updatedUser.getFirstName() != null) {
-        existingUser.setFirstName(updatedUser.getFirstName());
-    }
-    if (updatedUser.getMiddleName() != null) {
-        existingUser.setMiddleName(updatedUser.getMiddleName());
-    }
-    if (updatedUser.getLastName() != null) {
-        existingUser.setLastName(updatedUser.getLastName());
-    }
-    if (updatedUser.getEmail() != null) {
-        existingUser.setEmail(updatedUser.getEmail());
-    }
-    if (updatedUser.getPhone() != null) {
-        existingUser.setPhone(updatedUser.getPhone());
-    }
+
+    Pipeline<UserDTO> pipeline = new Pipeline<>();
+    pipeline.addFilter(new GenericLoggingFilter<>());
+    pipeline.addFilter(new UserValidFilter(this, username));
+    pipeline.addFilter(new UserTransformationFilter(this, username, passwordEncoder));
+
+    UserDTO processedUserDTO = pipeline.execute(updatedUserDTO);
+
+    User existingUser = UserMapper.INSTANCE.dtoToUser(processedUserDTO);
 
     update(existingUser);
 

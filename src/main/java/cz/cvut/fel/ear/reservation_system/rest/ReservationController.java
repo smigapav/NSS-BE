@@ -43,12 +43,11 @@ public class ReservationController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "create")
     public ResponseEntity<String> createReservation(Authentication authentication, @RequestBody ReservationDTO reservationDTO) {
         try {
-            String currentUsername = authentication.getName();
-            User currentUser = userService.findByUsername(currentUsername);
+            User currentUser = userService.findByUsername(authentication.getName());
 
             reservationDTO.setUser(UserMapper.INSTANCE.userToDto(currentUser));
 
-            ReservationDTO createdReservationDTO = reservationService.createReservationIfRoomAvailable(currentUser, reservationDTO);
+            ReservationDTO createdReservationDTO = reservationService.createReservationIfRoomAvailable(reservationDTO);
             Reservation createdReservation = ReservationMapper.INSTANCE.dtoToReservation(createdReservationDTO);
 
             Order order = new Order();
@@ -58,7 +57,7 @@ public class ReservationController {
 
             orderService.create(order);
 
-            LOG.debug("Created reservation {}.", createdReservation);
+            LOG.info("Created reservation {}.", createdReservation);
             final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/{id}", createdReservation.getId());
             return new ResponseEntity<>(headers, HttpStatus.CREATED);
         } catch (RoomNotAvailableException e) {
@@ -69,13 +68,12 @@ public class ReservationController {
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "edit")
     public ResponseEntity<String> editReservation(Authentication authentication, @RequestBody ReservationDTO reservationDTO) {
         try {
-            String currentUsername = authentication.getName();
-            User currentUser = userService.findByUsername(currentUsername);
+            User currentUser = userService.findByUsername(authentication.getName());
 
             Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
             reservationService.editReservationIfPossible(currentUser, reservationDTO);
 
-            LOG.debug("Edited reservation {}.", reservation);
+            LOG.info("Edited reservation {}.", reservation);
             return new ResponseEntity<>("Reservation successfully edited.", HttpStatus.OK);
         } catch (ReservationNotFoundException | PermissionDeniedException | ReservationConflictException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
@@ -91,7 +89,7 @@ public class ReservationController {
             Reservation reservation = reservationService.read(reservationDTO.getId());
             reservationService.stornoReservationIfPossible(currentUser, reservationDTO);
 
-            LOG.debug("Cancelled reservation {}.", reservation);
+            LOG.info("Cancelled reservation {}.", reservation);
             return new ResponseEntity<>(reservationService.getStornoEndpointBody(reservation), HttpStatus.OK);
         } catch (ReservationNotFoundException | PermissionDeniedException | IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
@@ -107,7 +105,7 @@ public class ReservationController {
             Reservation reservation = reservationService.read(reservationDTO.getId());
             reservationService.payReservationIfPossible(currentUser, ReservationMapper.INSTANCE.reservationToDto(reservation));
 
-            LOG.debug("Paid reservation {}.", reservation);
+            LOG.info("Paid reservation {}.", reservation);
             return new ResponseEntity<>(reservationService.getPayEndpointBody(reservation), HttpStatus.OK);
         } catch (ReservationNotFoundException | PermissionDeniedException | IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
@@ -124,6 +122,8 @@ public class ReservationController {
                 .flatMap(Collection::stream)
                 .toList();
 
+        LOG.info("Listed all reservations.");
+
         return reservations.stream()
                 .map(ReservationMapper.INSTANCE::reservationToDto)
                 .collect(Collectors.toList());
@@ -133,6 +133,7 @@ public class ReservationController {
     public ResponseEntity<Void> deleteNotPaidReservationsLessThanOneDayFromNow(@RequestHeader String apiKey) {
         try {
             cleanupService.deleteNotPaidReservationsLessThanOneDayFromNow(apiKey);
+            LOG.info("Deleted all not paid reservations less than one day from now.");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (InvalidApiKeyException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
