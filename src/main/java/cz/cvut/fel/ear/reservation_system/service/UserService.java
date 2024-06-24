@@ -1,14 +1,15 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
+import cz.cvut.fel.ear.reservation_system.dto.UserDTO;
 import cz.cvut.fel.ear.reservation_system.exception.UserNotFoundException;
+import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,15 +90,27 @@ public class UserService implements CRUDOperations<User> {
     }
 
     @Transactional
-    public User editUserIfPossible(User updatedUser) {
-    User existingUser = findByUsername(updatedUser.getUsername());
-
+    public User editUserIfPossible(UserDTO updatedUserDTO, String username) {
+    User updatedUser = UserMapper.INSTANCE.dtoToUser(updatedUserDTO);
+    User existingUser = findByUsername(username);
     if (existingUser == null) {
         throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found.");
     }
-
     if (updatedUser.getRole() != null) {
         existingUser.setRole(updatedUser.getRole());
+    }
+    if (updatedUser.getPassword() != null) {
+        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.encodePassword(passwordEncoder);
+    }
+    if (updatedUser.getFirstName() != null) {
+        existingUser.setFirstName(updatedUser.getFirstName());
+    }
+    if (updatedUser.getMiddleName() != null) {
+        existingUser.setMiddleName(updatedUser.getMiddleName());
+    }
+    if (updatedUser.getLastName() != null) {
+        existingUser.setLastName(updatedUser.getLastName());
     }
     if (updatedUser.getEmail() != null) {
         existingUser.setEmail(updatedUser.getEmail());
@@ -106,7 +119,7 @@ public class UserService implements CRUDOperations<User> {
         existingUser.setPhone(updatedUser.getPhone());
     }
 
-    create(existingUser);
+    update(existingUser);
 
     return existingUser;
 }

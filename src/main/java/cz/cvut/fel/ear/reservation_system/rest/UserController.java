@@ -50,10 +50,10 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping(value = "edit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> editUser(@RequestBody User updatedUser) {
+    @PutMapping(value = "edit/{username}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> editUser(@PathVariable String username, @RequestBody UserDTO updatedUserDTO) {
         try {
-            User user = userService.editUserIfPossible(updatedUser);
+            User user = userService.editUserIfPossible(updatedUserDTO, username);
             LOG.debug("User {} successfully updated by admin.", user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
@@ -69,6 +69,31 @@ public class UserController {
         return users.stream()
                 .map(UserMapper.INSTANCE::userToDto)
                 .collect(Collectors.toList());
+    }
+
+    @PutMapping(value = "editSelf", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> editSelf(Authentication authentication, @RequestBody UserDTO updatedUserDTO) {
+        try {
+            String currentUsername = authentication.getName();
+            User user = userService.editUserIfPossible(updatedUserDTO, currentUsername);
+            LOG.debug("User {} successfully updated by admin.", user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping(value = "delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> deleteUser(@RequestBody UserDTO updatedUserDTO) {
+        try {
+            User user = userService.read(updatedUserDTO.getId());
+            userService.delete(updatedUserDTO.getId());
+            LOG.debug("User {} successfully deleted by admin.", user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
 
