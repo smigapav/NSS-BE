@@ -3,6 +3,7 @@ package cz.cvut.fel.ear.reservation_system.rest;
 import cz.cvut.fel.ear.reservation_system.model.Room;
 import cz.cvut.fel.ear.reservation_system.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+
+    @Cacheable(value = "rooms")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Room>> listAllRooms(
             @RequestParam(value = "from", required = false) LocalDateTime fromDate,
