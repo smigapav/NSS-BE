@@ -38,7 +38,7 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> register(@RequestBody User user) {
         userService.create(user);
-        LOG.debug("User {} successfully registered.", user);
+        LOG.info("User {} successfully registered.", user);
         final HttpHeaders headers = RestUtils.createLocationHeaderFromCurrentUri("/current");
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
@@ -46,6 +46,7 @@ public class UserController {
     @GetMapping(value = "current", produces = MediaType.APPLICATION_JSON_VALUE)
     public User getCurrent(Authentication auth) {
         assert auth.getPrincipal() instanceof UserDetails;
+        LOG.info("User {} requested current user.", ((UserDetails) auth.getPrincipal()).getUser());
         return ((UserDetails) auth.getPrincipal()).getUser();
     }
 
@@ -54,7 +55,7 @@ public class UserController {
     public ResponseEntity<Void> editUser(@PathVariable String username, @RequestBody UserDTO updatedUserDTO) {
         try {
             User user = userService.editUserIfPossible(updatedUserDTO, username);
-            LOG.debug("User {} successfully updated by admin.", user);
+            LOG.info("User {} successfully updated by admin.", user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -65,7 +66,7 @@ public class UserController {
     @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserDTO> listAllUsers() {
         List<User> users = userService.listAll();
-
+        LOG.info("Admin requested list of all users.");
         return users.stream()
                 .map(UserMapper.INSTANCE::userToDto)
                 .collect(Collectors.toList());
@@ -74,9 +75,8 @@ public class UserController {
     @PutMapping(value = "editSelf", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> editSelf(Authentication authentication, @RequestBody UserDTO updatedUserDTO) {
         try {
-            String currentUsername = authentication.getName();
-            User user = userService.editUserIfPossible(updatedUserDTO, currentUsername);
-            LOG.debug("User {} successfully updated by admin.", user);
+            User user = userService.editUserIfPossible(updatedUserDTO, authentication.getName());
+            LOG.info("User {} successfully updated by admin.", user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -89,7 +89,7 @@ public class UserController {
         try {
             User user = userService.read(updatedUserDTO.getId());
             userService.delete(updatedUserDTO.getId());
-            LOG.debug("User {} successfully deleted by admin.", user);
+            LOG.info("User {} successfully deleted by admin.", user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

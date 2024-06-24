@@ -5,6 +5,8 @@ import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
 import cz.cvut.fel.ear.reservation_system.exception.*;
 import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.*;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -75,8 +77,15 @@ public class ReservationService implements CRUDOperations<Reservation> {
     }
 
     @Transactional
-    public ReservationDTO createReservationIfRoomAvailable(User user, ReservationDTO reservationDTO) {
-        Reservation reservation = ReservationMapper.INSTANCE.INSTANCE.dtoToReservation(reservationDTO);
+    public ReservationDTO createReservationIfRoomAvailable(ReservationDTO reservationDTO) {
+        Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new ReservationValidFilter());
+        pipeline.addFilter(new ReservationTransformationFilter());
+
+        ReservationDTO processedReservationDTO = pipeline.execute(reservationDTO);
+
+        Reservation reservation = ReservationMapper.INSTANCE.INSTANCE.dtoToReservation(processedReservationDTO);
         Room room = reservation.getRoom();
         LocalDateTime from = reservation.getDateFrom();
         LocalDateTime to = reservation.getDateTo();
@@ -85,9 +94,6 @@ public class ReservationService implements CRUDOperations<Reservation> {
             throw new RoomNotAvailableException(HttpStatus.CONFLICT, "The room is not available for the specified dates.");
         }
 
-        reservation.setCreatedAt(LocalDateTime.now());
-        reservation.setStatus(ReservationStatus.NOT_PAID);
-
         create(reservation);
 
         return ReservationMapper.INSTANCE.reservationToDto(reservation);
@@ -95,17 +101,16 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     @Transactional
     public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
+        Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new ReservationIdValidFilter(this));
+        pipeline.addFilter(new ReservationEditValidFilter(currentUser));
+
+        ReservationDTO processedReservationDTO = pipeline.execute(reservationDTO);
+
+        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
         Reservation existingReservation = read(reservation.getId());
 
-        if (existingReservation == null) {
-            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
-        }
-
-        if ((!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) ||
-                !existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to edit this reservation.");
-        }
 
         if (currentUser.getRole().equals(Role.STANDARD_USER)) {
             existingReservation.setDateFrom(reservation.getDateFrom());
@@ -141,16 +146,10 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     @Transactional
     public ReservationDTO stornoReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
+        ReservationDTO processedReservationDTO = checkIdAndPermission(reservationDTO, currentUser);
+
+        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
         Reservation existingReservation = read(reservation.getId());
-
-        if (existingReservation == null) {
-            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
-        }
-
-        if (!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to cancel this reservation.");
-        }
 
         if (existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) {
             existingReservation.setStatus(ReservationStatus.CANCELLED);
@@ -167,14 +166,9 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     @Transactional
     public ReservationDTO payReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        Reservation existingReservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
-        if (existingReservation == null) {
-            throw new ReservationNotFoundException(HttpStatus.NOT_FOUND, "Reservation not found.");
-        }
+        ReservationDTO processedReservationDTO = checkIdAndPermission(reservationDTO, currentUser);
 
-        if (!currentUser.getUsername().equals(existingReservation.getUser().getUsername()) && !existingReservation.getUser().isAdmin()) {
-            throw new PermissionDeniedException(HttpStatus.FORBIDDEN, "You don't have permission to pay this reservation.");
-        }
+        Reservation existingReservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
 
         Order order = orderService.findByReservation(existingReservation);
 
@@ -218,5 +212,13 @@ public class ReservationService implements CRUDOperations<Reservation> {
             return "Reservation has been paid successfully.";
         }
         return null;
+    }
+
+    private ReservationDTO checkIdAndPermission(ReservationDTO reservationDTO, User currentUser) {
+        Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new ReservationIdValidFilter(this));
+        pipeline.addFilter(new ReservationPermissionValidFilter(currentUser));
+        return pipeline.execute(reservationDTO);
     }
 }
