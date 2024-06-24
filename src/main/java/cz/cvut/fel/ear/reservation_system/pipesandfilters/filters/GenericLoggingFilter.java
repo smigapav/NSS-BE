@@ -6,14 +6,19 @@ import org.slf4j.LoggerFactory;
 
 public class GenericLoggingFilter<T> implements Filter<T> {
     private static final Logger LOG = LoggerFactory.getLogger(GenericLoggingFilter.class);
+    private final String message;
+    private final String className;
+    private final String methodName;
+
+    public GenericLoggingFilter(String message, String className, String methodName) {
+        this.message = message;
+        this.className = className;
+        this.methodName = methodName;
+    }
 
     @Override
     public T execute(T input) {
-        StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
-        String callerClass = caller.getClassName();
-        String callerMethod = caller.getMethodName();
-
-        LOG.info("Processing object: {} from class: {} method: {}", input, callerClass, callerMethod);
+        LOG.info("{}.{}: {}", className, methodName, message);
         return input;
     }
 }

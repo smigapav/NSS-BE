@@ -79,7 +79,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
     @Transactional
     public ReservationDTO createReservationIfRoomAvailable(ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new GenericLoggingFilter<>("creating reservation if room is available", ReservationService.class.getName(),"createReservationIfRoomAvailable"));
         pipeline.addFilter(new ReservationValidFilter());
         pipeline.addFilter(new ReservationTransformationFilter());
 
@@ -102,7 +102,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
     @Transactional
     public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(),"editReservationIfPossible"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationEditValidFilter(currentUser));
 
@@ -216,7 +216,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     private ReservationDTO checkIdAndPermission(ReservationDTO reservationDTO, User currentUser) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>());
+        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(),"checkIdAndPermission"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationPermissionValidFilter(currentUser));
         return pipeline.execute(reservationDTO);
