@@ -1,5 +1,7 @@
 package cz.cvut.fel.ear.reservation_system.rest;
 
+import cz.cvut.fel.ear.reservation_system.dto.UserDTO;
+import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.rest.util.RestUtils;
 import cz.cvut.fel.ear.reservation_system.security.model.UserDetails;
@@ -15,6 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest/users")
@@ -54,6 +59,16 @@ public class UserController {
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UserDTO> listAllUsers() {
+        List<User> users = userService.listAll();
+
+        return users.stream()
+                .map(UserMapper.INSTANCE::userToDto)
+                .collect(Collectors.toList());
     }
 }
 
