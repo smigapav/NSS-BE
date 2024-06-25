@@ -9,12 +9,14 @@ services:
       - SPRING_DATASOURCE_PASSWORD=josefavitek
       - API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
   nss_cron_ms:
-    build: cron_microservice/nss_cron_ms
+    build:
+      context: ./nss_cron_ms
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - NSS_APP_URL=http://localhost:8080/rest/cron/cleanup
       - NSS_APP_API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
-    volumes:
-      - ./cron_microservice/nss_cron_ms:/app
+    depends_on:
+      - app

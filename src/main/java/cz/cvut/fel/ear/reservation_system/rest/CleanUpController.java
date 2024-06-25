@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class CleanUpController {
     private final CleanUpService cleanupService;
 
-    @PostMapping(value = "cleanup")
+    @PostMapping(value = "/cleanup")
     public ResponseEntity<Void> deleteNotPaidReservationsLessThanOneDayFromNow(@RequestHeader String apiKey) {
         try {
             cleanupService.deleteNotPaidReservationsLessThanOneDayFromNow(apiKey);
