@@ -1,14 +1,17 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.UserDao;
-import cz.cvut.fel.ear.reservation_system.exception.UserNotFoundException;
+import cz.cvut.fel.ear.reservation_system.dto.UserDTO;
+import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.Phone;
 import cz.cvut.fel.ear.reservation_system.model.Role;
 import cz.cvut.fel.ear.reservation_system.model.User;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.GenericLoggingFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.UserTransformationFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.UserValidFilter;
 import cz.cvut.fel.ear.reservation_system.util.Constants;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +82,6 @@ public class UserService implements CRUDOperations<User> {
     @Transactional
     public void assignRole(User user, Role role) {
         user.setRole(role);
-
         dao.save(user);
     }
 
@@ -89,24 +91,18 @@ public class UserService implements CRUDOperations<User> {
     }
 
     @Transactional
-    public User editUserIfPossible(User updatedUser) {
-    User existingUser = findByUsername(updatedUser.getUsername());
+    public User editUserIfPossible(UserDTO updatedUserDTO, String username) {
 
-    if (existingUser == null) {
-        throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found.");
-    }
+    Pipeline<UserDTO> pipeline = new Pipeline<>();
+    pipeline.addFilter(new GenericLoggingFilter<>("editing user if possible", UserService.class.getName(), "editUserIfPossible"));
+    pipeline.addFilter(new UserValidFilter(this, username));
+    pipeline.addFilter(new UserTransformationFilter(this, username, passwordEncoder));
 
-    if (updatedUser.getRole() != null) {
-        existingUser.setRole(updatedUser.getRole());
-    }
-    if (updatedUser.getEmail() != null) {
-        existingUser.setEmail(updatedUser.getEmail());
-    }
-    if (updatedUser.getPhone() != null) {
-        existingUser.setPhone(updatedUser.getPhone());
-    }
+    UserDTO processedUserDTO = pipeline.execute(updatedUserDTO);
 
-    create(existingUser);
+    User existingUser = UserMapper.INSTANCE.dtoToUser(processedUserDTO);
+
+    update(existingUser);
 
     return existingUser;
 }
