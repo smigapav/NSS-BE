@@ -31,4 +31,47 @@ public class Order extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public static class Builder {
+        private LocalDateTime createdAt;
+        private LocalDateTime confirmedAt;
+        private Double totalPrice;
+        private Reservation reservation;
+        private User user;
+
+        public Builder withCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public Builder withConfirmedAt(LocalDateTime confirmedAt) {
+            this.confirmedAt = confirmedAt;
+            return this;
+        }
+
+        public Builder withTotalPrice(Double totalPrice) {
+            this.totalPrice = totalPrice;
+            return this;
+        }
+
+        public Builder withReservation(Reservation reservation) {
+            this.reservation = reservation;
+            return this;
+        }
+
+        public Builder withUser(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Order build() {
+            Order order = new Order();
+            order.createdAt = this.createdAt;
+            order.confirmedAt = this.confirmedAt;
+            order.totalPrice = this.totalPrice;
+            order.reservation = this.reservation;
+            order.user = this.user;
+            return order;
+        }
+    }
 }

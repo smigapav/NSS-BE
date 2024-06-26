@@ -50,10 +50,11 @@ public class ReservationController {
             ReservationDTO createdReservationDTO = reservationService.createReservationIfRoomAvailable(reservationDTO);
             Reservation createdReservation = ReservationMapper.INSTANCE.dtoToReservation(createdReservationDTO);
 
-            Order order = new Order();
-            order.setReservation(createdReservation);
-            order.setUser(currentUser);
-            order.setCreatedAt(LocalDateTime.now());
+            Order order = new Order.Builder()
+                    .withReservation(createdReservation)
+                    .withUser(currentUser)
+                    .withCreatedAt(LocalDateTime.now())
+                    .build();
 
             orderService.create(order);
 

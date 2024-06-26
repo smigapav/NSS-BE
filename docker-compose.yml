@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://slon.felk.cvut.cz:5432/michajo6
+      - SPRING_DATASOURCE_USERNAME=michajo6
+      - SPRING_DATASOURCE_PASSWORD=josefavitek
+      - API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
+  nss_cron_ms:
+    build:
+      context: ./nss_cron_ms
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NSS_APP_URL=http://localhost:8080/rest/cron/cleanup
+      - NSS_APP_API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
+    depends_on:
+      - app
