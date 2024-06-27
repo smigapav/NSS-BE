@@ -13,6 +13,15 @@ public class ReservationIdValidFilter implements Filter<ReservationDTO> {
         ReservationService = reservationService;
     }
 
+    /**
+     * Executes the filter operation.
+     * This method checks if the reservation with the provided ID exists.
+     * If the reservation does not exist, a ReservationNotFoundException is thrown.
+     *
+     * @param input the reservation data to check
+     * @return the checked reservation data
+     * @throws ReservationNotFoundException if the reservation does not exist
+     */
     @Override
     public ReservationDTO execute(ReservationDTO input) {
         if (ReservationService.read(input.getId()) == null) {
