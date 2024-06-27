@@ -10,5 +10,6 @@ public interface ReservationMapper {
     ReservationMapper INSTANCE = Mappers.getMapper(ReservationMapper.class);
 
     Reservation dtoToReservation(ReservationDTO reservationDTO);
+
     ReservationDTO reservationToDto(Reservation reservation);
 }

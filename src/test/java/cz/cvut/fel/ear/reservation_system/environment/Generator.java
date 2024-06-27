@@ -43,8 +43,8 @@ public class Generator {
         phone.setPrefix("+420");
 
         user.setPhone(phone);
-        user.setPassword("test"+ randomInt());
-        user.setPassword("test"+ randomInt());
+        user.setPassword("test" + randomInt());
+        user.setPassword("test" + randomInt());
         user.setUsername("test" + randomInt());
         return user;
     }
