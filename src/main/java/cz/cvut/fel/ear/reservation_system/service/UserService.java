@@ -167,6 +167,7 @@ public class UserService implements CRUDOperations<User> {
      */
     @Transactional
     public User editUserIfPossible(UserDTO updatedUserDTO, String username) {
+
         Pipeline<UserDTO> pipeline = new Pipeline<>();
         pipeline.addFilter(new GenericLoggingFilter<>("editing user if possible", UserService.class.getName(), "editUserIfPossible"));
         pipeline.addFilter(new UserValidFilter(this, username));
