@@ -10,5 +10,6 @@ public interface RoomMapper {
     RoomMapper INSTANCE = Mappers.getMapper(RoomMapper.class);
 
     Room dtoToRoom(RoomDTO roomDTO);
+
     RoomDTO roomToDto(Room room);
 }

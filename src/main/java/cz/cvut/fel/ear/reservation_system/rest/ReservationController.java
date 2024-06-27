@@ -4,10 +4,16 @@ import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
 import cz.cvut.fel.ear.reservation_system.exception.*;
 import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
-import cz.cvut.fel.ear.reservation_system.model.*;
+import cz.cvut.fel.ear.reservation_system.model.Order;
+import cz.cvut.fel.ear.reservation_system.model.Reservation;
+import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
+import cz.cvut.fel.ear.reservation_system.model.User;
 import cz.cvut.fel.ear.reservation_system.rest.util.RestUtils;
 import cz.cvut.fel.ear.reservation_system.security.model.UserDetails;
-import cz.cvut.fel.ear.reservation_system.service.*;
+import cz.cvut.fel.ear.reservation_system.service.CleanUpService;
+import cz.cvut.fel.ear.reservation_system.service.OrderService;
+import cz.cvut.fel.ear.reservation_system.service.ReservationService;
+import cz.cvut.fel.ear.reservation_system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +36,7 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/rest/reservations")
 @PreAuthorize("hasAnyAuthority('ADMIN', 'STANDARD_USER')")
-@CrossOrigin(origins="*")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class ReservationController {
 

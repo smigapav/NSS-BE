@@ -93,17 +93,17 @@ public class UserService implements CRUDOperations<User> {
     @Transactional
     public User editUserIfPossible(UserDTO updatedUserDTO, String username) {
 
-    Pipeline<UserDTO> pipeline = new Pipeline<>();
-    pipeline.addFilter(new GenericLoggingFilter<>("editing user if possible", UserService.class.getName(), "editUserIfPossible"));
-    pipeline.addFilter(new UserValidFilter(this, username));
-    pipeline.addFilter(new UserTransformationFilter(this, username, passwordEncoder));
+        Pipeline<UserDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>("editing user if possible", UserService.class.getName(), "editUserIfPossible"));
+        pipeline.addFilter(new UserValidFilter(this, username));
+        pipeline.addFilter(new UserTransformationFilter(this, username, passwordEncoder));
 
-    UserDTO processedUserDTO = pipeline.execute(updatedUserDTO);
+        UserDTO processedUserDTO = pipeline.execute(updatedUserDTO);
 
-    User existingUser = UserMapper.INSTANCE.dtoToUser(processedUserDTO);
+        User existingUser = UserMapper.INSTANCE.dtoToUser(processedUserDTO);
 
-    update(existingUser);
+        update(existingUser);
 
-    return existingUser;
-}
+        return existingUser;
+    }
 }

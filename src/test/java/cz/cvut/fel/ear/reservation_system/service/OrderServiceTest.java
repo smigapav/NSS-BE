@@ -1,7 +1,6 @@
 package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.OrderDao;
-import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.model.Order;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import org.junit.jupiter.api.BeforeEach;

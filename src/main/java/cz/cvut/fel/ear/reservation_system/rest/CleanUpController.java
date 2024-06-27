@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rest/cron")
-@CrossOrigin(origins="*")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class CleanUpController {
     private final CleanUpService cleanupService;

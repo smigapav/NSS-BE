@@ -44,7 +44,7 @@ class BaseDaoTest {
         Mockito.when(sut.findAll()).thenReturn(List.of(user));
     }
 
-    public User createTestUser(){
+    public User createTestUser() {
         User randomUser = new User();
         randomUser.setFirstName("test");
         randomUser.setLastName("test");
