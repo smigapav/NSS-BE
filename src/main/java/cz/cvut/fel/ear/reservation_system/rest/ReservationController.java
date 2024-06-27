@@ -6,6 +6,7 @@ import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.mapping.UserMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
 import cz.cvut.fel.ear.reservation_system.rest.util.RestUtils;
+import cz.cvut.fel.ear.reservation_system.security.model.UserDetails;
 import cz.cvut.fel.ear.reservation_system.service.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -114,16 +116,27 @@ public class ReservationController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
     public List<ReservationDTO> listAllReservations() {
-        List<Reservation> reservations = Stream.of(
-                        reservationService.findByStatus(ReservationStatus.NOT_PAID),
-                        reservationService.findByStatus(ReservationStatus.PAID),
-                        reservationService.findByStatus(ReservationStatus.STORNO_REQUEST))
-                .flatMap(Collection::stream)
-                .toList();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
 
-        LOG.info("Listed all reservations.");
+        List<Reservation> reservations;
+
+        if (isAdmin) {
+            reservations = Stream.of(
+                            reservationService.findByStatus(ReservationStatus.NOT_PAID),
+                            reservationService.findByStatus(ReservationStatus.PAID),
+                            reservationService.findByStatus(ReservationStatus.STORNO_REQUEST))
+                    .flatMap(Collection::stream)
+                    .toList();
+        } else {
+            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+            User currentUser = userService.findByUsername(username);
+            reservations = reservationService.findByUser(currentUser);
+        }
+
+        LOG.info("Listed reservations.");
 
         return reservations.stream()
                 .map(ReservationMapper.INSTANCE::reservationToDto)
