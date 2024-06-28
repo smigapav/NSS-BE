@@ -16,7 +16,7 @@ Deployment is done by cloning/pulling both FE and BE repos on the server and run
 which ensures both the main application and the microservice gets compiled and the frontend builds.
 
 - The frontend is accessible on the ip address 138.2.133.29 with the port 3000
-- Access the app here: [Application](138.2.133.29:3000)
+- Access the app here: [Application](https://138.2.133.29:3000)
 
 ## Requirements
 - Java/SpringBoot on backend
