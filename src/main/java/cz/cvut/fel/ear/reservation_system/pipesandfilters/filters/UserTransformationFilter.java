@@ -21,6 +21,15 @@ public class UserTransformationFilter implements Filter<UserDTO> {
         this.passwordEncoder = encoder;
     }
 
+    /**
+     * Executes the filter operation.
+     * This method updates the existing user with the provided user data.
+     * If a field in the provided user data is not null, the corresponding field in the existing user is updated.
+     * The password is encoded before being set in the existing user.
+     *
+     * @param input the user data to use for updating the existing user
+     * @return the updated user data
+     */
     @Override
     public UserDTO execute(UserDTO input) {
         User existingUser = userService.findByUsername(username);
