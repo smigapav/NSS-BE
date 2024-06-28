@@ -162,7 +162,7 @@ public class UserService implements CRUDOperations<User> {
      * Edits a user if possible.
      *
      * @param updatedUserDTO the updated user data
-     * @param username the username of the user to edit
+     * @param username       the username of the user to edit
      * @return the edited user, or null if the user could not be edited
      */
     @Transactional

@@ -24,7 +24,7 @@ public class UserValidFilter implements Filter<UserDTO> {
      *
      * @param input the user data to validate
      * @return the validated user data
-     * @throws ValidationException if the username or email is null or empty
+     * @throws ValidationException   if the username or email is null or empty
      * @throws UserNotFoundException if the user does not exist
      */
     @Override

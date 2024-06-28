@@ -107,7 +107,7 @@ public class RoomService implements CRUDOperations<Room> {
      * Checks if a room is available between two dates.
      *
      * @param from the start date
-     * @param to the end date
+     * @param to   the end date
      * @param room the room to check
      * @return true if the room is available, false otherwise
      */
@@ -127,7 +127,7 @@ public class RoomService implements CRUDOperations<Room> {
      * Finds all rooms that are available between two dates.
      *
      * @param from the start date
-     * @param to the end date
+     * @param to   the end date
      * @return a list of all available rooms
      */
     @Transactional(readOnly = true)
