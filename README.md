@@ -28,6 +28,31 @@ which ensures both the main application and the microservice gets compiled and t
 - REST
 - Production server (Oracle cloud)
 - Pipes and Filters architecture
+- Hazelcast chaching
+
+## Mappers
+
+The application employs the Mapper design pattern to map between DTO (Data Transfer Object) and domain model objects, separating the internal representation of data from the data exposed over a network or saved in a database.
+
+- `ReservationMapper`: Maps between `ReservationDTO` and `Reservation` objects.
+- `RoomMapper`: Maps between `RoomDTO` and `Room` objects.
+- `UserMapper`: Maps between `UserDTO` and `User` objects.
+
+These mappers isolate the conversion logic in their own classes, making the code cleaner and easier to maintain.
+
+## Pipes and Filters
+
+The application implements the Pipes and Filters architectural pattern to process data. This pattern provides a structure for systems that process a stream of data, where each processing step is encapsulated in a filter component. Data are passed through pipes between adjacent filters.
+
+Key components of this pattern in the application are:
+
+- **Filters**: These are components that transform or filter data. The application includes several filters such as `GenericLoggingFilter`, `ReservationValidFilter`, `ReservationEditPermissionFilter`, and `ReservationTransformationFilter`. Each filter has a specific task, such as logging, validation, permission checking, and transformation.
+
+- **Pipes**: These are conduits through which data are passed. In the application, the `Pipeline` class represents a pipe. It maintains a list of filters and provides an `execute` method that passes the input through all the filters in the pipeline.
+
+- **Input and Output**: The input to the pipeline is a `ReservationDTO` object, and the output is also a `ReservationDTO` object. The input is passed through each filter in the pipeline, and each filter transforms the input in some way.
+
+This implementation of the Pipes and Filters pattern allows the application to process `ReservationDTO` objects in a pipeline, where each step in the pipeline is clearly separated and can be modified independently. This makes the code easier to understand, test, and maintain.
 
 ## Design Patterns
 
