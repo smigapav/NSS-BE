@@ -16,7 +16,7 @@ services:
       - "8000:8000"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - NSS_APP_URL=http://app:8080/rest/cron/cleanup
+      - NSS_APP_URL=http://138.2.133.29:8080/rest/cron/cleanup
       - NSS_APP_API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
     depends_on:
       - app
