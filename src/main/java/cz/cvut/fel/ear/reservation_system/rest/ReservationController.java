@@ -148,16 +148,5 @@ public class ReservationController {
                 .map(ReservationMapper.INSTANCE::reservationToDto)
                 .collect(Collectors.toList());
     }
-
-    @PostMapping(value = "cleanup")
-    public ResponseEntity<Void> deleteNotPaidReservationsLessThanOneDayFromNow(@RequestHeader String apiKey) {
-        try {
-            cleanupService.deleteNotPaidReservationsLessThanOneDayFromNow(apiKey);
-            LOG.info("Deleted all not paid reservations less than one day from now.");
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (InvalidApiKeyException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-    }
 }
 
