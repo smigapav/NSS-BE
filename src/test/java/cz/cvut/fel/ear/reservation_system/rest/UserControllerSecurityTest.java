@@ -54,19 +54,6 @@ public class UserControllerSecurityTest extends BaseControllerTestRunner {
         Mockito.reset(userService);
     }
 
-    @Configuration
-    @TestConfiguration
-    public static class TestConfig {
-
-        @MockBean
-        private UserService userService;
-
-        @Bean
-        public UserController userController() {
-            return new UserController(userService);
-        }
-    }
-
     @WithAnonymousUser
     @Test
     public void registerSupportsAnonymousAccess() throws Exception {
@@ -101,6 +88,19 @@ public class UserControllerSecurityTest extends BaseControllerTestRunner {
                         post("/rest/users").content(toJson(toRegister)).contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isForbidden());
         verify(userService, never()).create(any());
+    }
+
+    @Configuration
+    @TestConfiguration
+    public static class TestConfig {
+
+        @MockBean
+        private UserService userService;
+
+        @Bean
+        public UserController userController() {
+            return new UserController(userService);
+        }
     }
 
 

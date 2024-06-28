@@ -41,24 +41,21 @@ public class RoomServiceTest {
     }
 
     @Test
-    public void findByNameReturnsCorrectly()
-    {
+    public void findByNameReturnsCorrectly() {
         Room resultRoom = sut.findByName(room.getName());
 
         assertEquals(room.getId(), resultRoom.getId());
     }
 
     @Test
-    public void getAllRoomsReturnsSomeRooms()
-    {
+    public void getAllRoomsReturnsSomeRooms() {
         List<Room> rooms = sut.listAll();
 
         assertFalse(rooms.isEmpty());
     }
 
     @Test
-    public void isAvailableReturnsFalse()
-    {
+    public void isAvailableReturnsFalse() {
         LocalDateTime from = LocalDateTime.of(2015,
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();
@@ -68,8 +65,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    public void findAvailableRoomsReturnsSomeRooms()
-    {
+    public void findAvailableRoomsReturnsSomeRooms() {
         LocalDateTime from = LocalDateTime.of(2015,
                 Month.JULY, 29, 19, 30, 40);
         LocalDateTime to = LocalDateTime.now();

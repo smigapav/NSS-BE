@@ -1,73 +1,32 @@
-SRS: https://docs.google.com/document/d/1b8GknhXT3utM6CLW50Avw4MhZ8i7bTnvyhsfZr-q5lk/edit?usp=sharing
+# Meeting Room Reservation System
 
-#### michajo6 a cechvit1
+## Overview
 
-# Meeting room reservation system 
+The Meeting Room Reservation System is a Java-based microservice application designed to manage meeting room reservations.
 
-## Téma 
-Systém, který  podporuje správu zasedacích místností a jejich rezervace. Podporuje také stanovení priorit
-místností, tak že některé místnosti jsou zpřístupněny pouze tehdy, když nejsou žádné volné místnosti pro daný čas.
+The system allows registration, login, and reservation of meeting rooms by users. Users can view available meeting rooms, check their availability, and reserve a room for a specific date and time. The system also provides functionality to cancel reservations and view reservation history.
+## Design Patterns
 
-## Popis funkcionalit
-Systém je určen pro studenty ČVUT, kteří jsou přihlášeni přes SSO bránu.
-Umožňuje jim rezervovat si místnost v daném čase.
-Místnosti můžou být různě velké a mohou být jinak vybavené. Omezením systému je, že 
-uživatel si může zarezervovat místnost nejméně na jednu hodinu. 
+The application employs several design patterns to enhance its structure and functionality:
 
+1. **Builder Pattern**: The Order class is constructed using the Builder pattern. This pattern allows for the creation of complex objects step by step, providing a clear and flexible way to create instances of the Order class.
 
+2. **Singleton Pattern**: The microservice uses the Singleton pattern to ensure that only a single instance of the service exists throughout the application. This pattern is used to control access to shared resources, such as database connections or sockets.
 
-## Seznam hlavních funkcí aplikace
-#### student ČVUT
-- zobrazení volných místostní pro daný den 
-- vytvořit nezávaznou předrezervaci místností
-- úprava předrezervace
-- storno předrezervace
-- potvrzení rezervace místností 
-- storno rezervace (za poplatek) - netriviální
+3. **Factory Pattern**: The Logger class is created using the Factory pattern. This pattern provides a way to encapsulate the instantiation logic and gives the flexibility to create different types of loggers based on the context.
 
-#### admin
-- zobrazování  a úprava rezervací
-- úprava studentů (ban)
+4. **Adapter Pattern**: The Mapper uses the Adapter pattern to convert the interface of a class into another interface that clients expect. This allows classes to work together that couldn't otherwise because of incompatible interfaces.
 
-## Cíloví uživatelé
-- studenti čvut
-- admin
+5. **Factory Method Pattern**: The Spring application initialization process uses the Factory Method pattern.
+## Docker
 
-## Cíl projektu
-Zlepšní uživatelského komfortu s rezrevací místostí.
+Docker is used to containerize the application, providing a consistent environment for it to run in, regardless of the host system. The application and its dependencies are packaged into a Docker image, which can be run as a container on any system with Docker installed. The Docker configuration for the application is specified in the `docker-compose.yml` file.
 
-## Technické údaje
- - databáze (slon.felk.cvut.cz)
- - k dispozici je 10 místností
- - dvě role (admin, student)
- - maven 
- - spolehlivost závislá na ČVUT serverech
+## Running the Application
 
-## Stručný návod na spuštění aplikace
-    
- - Nainstalujte aplikaci do svého počítače
- - Spusťte ReservationSystemApplication.java
- - Volejte REST nejdříve pomocí loginu:
- - ![img.png](img.png)
- - Dále pak volejte libovolné metody z rest rozhraní, pokud na ně máte práva
- - Například:
- - ![img_1.png](img_1.png)
+To run the application, you need to have Docker installed on your system. 
+Once Docker is installed, you need to package the projects, and then you can start the application by running the following command in the terminal
+from the root directory of the project:
 
-## Struktura aplikace
-
- - Aplikace je strukturovaná dle předlohy e-shopu
- - Obsahuje model, DAO, service a rest vrstvu
- - Dále obsahuje testy, potřebné DTO a jiné konfigurační soubory
-
-## Zpětná vazba
-
-### Josef Michálek
-
-Vyzkoušel jsem si práci s REST rozhraním Spring Bootu. To bylo pro mě poprvé, jelikož jsem REST implementoval v jiných
-jazycích a frameworcích. Obecně se mi zdá, že v eshopu bylo hodně věcí děláno manuálnně, ale později jsem zjistil, že se
-dají pomocí Springu automatizovat/ulehčit. To jsem však zjistil až po implementaci. Jinak si myslím, že to byl pro mě 
-přínosný projekt.
-
-### Vít Čech
-
-Se Spring Bootem jsem pracoval poprvé. Práce s ním mě na projektu  bavila a jsem rád, že jsem se naučil něco nového. Trochu jsem bojoval s propojením s databázi, ale to jsme dokázali vyřešit.
+```bash
+docker-compose up --build

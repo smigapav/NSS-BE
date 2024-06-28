@@ -16,6 +16,17 @@ public class UserValidFilter implements Filter<UserDTO> {
         this.username = username;
     }
 
+    /**
+     * Executes the filter operation.
+     * This method validates the user data.
+     * If the username or email is null or empty, a ValidationException is thrown.
+     * If the user does not exist, a UserNotFoundException is thrown.
+     *
+     * @param input the user data to validate
+     * @return the validated user data
+     * @throws ValidationException   if the username or email is null or empty
+     * @throws UserNotFoundException if the user does not exist
+     */
     @Override
     public UserDTO execute(UserDTO input) {
         if (input.getUsername() == null || input.getUsername().isEmpty()) {

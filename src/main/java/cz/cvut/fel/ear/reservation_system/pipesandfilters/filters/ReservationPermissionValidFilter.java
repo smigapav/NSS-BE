@@ -15,6 +15,15 @@ public class ReservationPermissionValidFilter implements Filter<ReservationDTO> 
         this.currentUser = currentUser;
     }
 
+    /**
+     * Executes the filter operation.
+     * This method checks if the current user has permission to cancel the reservation.
+     * If the current user is not the user who made the reservation and the user is not an admin, a PermissionDeniedException is thrown.
+     *
+     * @param input the reservation data to check
+     * @return the checked reservation data
+     * @throws PermissionDeniedException if the current user does not have permission to cancel the reservation
+     */
     @Override
     public ReservationDTO execute(ReservationDTO input) {
         Reservation existingReservation = ReservationMapper.INSTANCE.dtoToReservation(input);

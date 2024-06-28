@@ -2,7 +2,10 @@ package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
-import cz.cvut.fel.ear.reservation_system.exception.*;
+import cz.cvut.fel.ear.reservation_system.exception.CancellationNotAllowedException;
+import cz.cvut.fel.ear.reservation_system.exception.PaymentNotAllowedException;
+import cz.cvut.fel.ear.reservation_system.exception.ReservationConflictException;
+import cz.cvut.fel.ear.reservation_system.exception.RoomNotAvailableException;
 import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
 import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
@@ -19,13 +22,35 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Service class for managing reservations.
+ * This class provides CRUD operations for reservations and methods to find reservations by status, room, and user.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReservationService implements CRUDOperations<Reservation> {
+
+    /**
+     * DAO for accessing reservation data.
+     */
     private final ReservationDao reservationDao;
+
+    /**
+     * Service for managing rooms.
+     */
     private final RoomService roomService;
+
+    /**
+     * Service for managing orders.
+     */
     private final OrderService orderService;
 
+    /**
+     * Creates a new reservation.
+     *
+     * @param reservation the reservation to create
+     * @throws NullPointerException if the provided reservation is null
+     */
     @Transactional
     @Override
     public void create(Reservation reservation) {
@@ -36,6 +61,11 @@ public class ReservationService implements CRUDOperations<Reservation> {
         reservationDao.save(reservation);
     }
 
+    /**
+     * Deletes a reservation by its ID.
+     *
+     * @param id the ID of the reservation to delete
+     */
     @Transactional
     @Override
     public void delete(Integer id) {
@@ -43,43 +73,83 @@ public class ReservationService implements CRUDOperations<Reservation> {
         reservation.ifPresent(reservationDao::delete);
     }
 
+    /**
+     * Updates an existing reservation.
+     *
+     * @param reservation the reservation to update
+     */
     @Transactional
     @Override
     public void update(Reservation reservation) {
         reservationDao.save(reservation);
     }
 
+    /**
+     * Reads a reservation by its ID.
+     *
+     * @param id the ID of the reservation to read
+     * @return the reservation with the provided ID, or null if no such reservation exists
+     */
     @Transactional(readOnly = true)
     @Override
     public Reservation read(Integer id) {
         return reservationDao.findById(id).orElse(null);
     }
 
+    /**
+     * Lists all reservations.
+     *
+     * @return a list of all reservations
+     */
     @Transactional(readOnly = true)
     @Override
     public List<Reservation> listAll() {
         return reservationDao.findAll();
     }
 
+    /**
+     * Finds reservations by their status.
+     *
+     * @param status the status of the reservations to find
+     * @return a list of reservations with the provided status
+     */
     @Transactional(readOnly = true)
     public List<Reservation> findByStatus(ReservationStatus status) {
         return reservationDao.findByStatus(status);
     }
 
+    /**
+     * Finds reservations by their room.
+     *
+     * @param room the room of the reservations to find
+     * @return a list of reservations with the provided room
+     */
     @Transactional(readOnly = true)
     public List<Reservation> findByRoom(Room room) {
         return reservationDao.findByRoom(room);
     }
 
+    /**
+     * Finds reservations by their user.
+     *
+     * @param user the user of the reservations to find
+     * @return a list of reservations with the provided user
+     */
     @Transactional(readOnly = true)
     public List<Reservation> findByUser(User user) {
         return reservationDao.findByUser(user);
     }
 
+    /**
+     * Creates a reservation if the room is available.
+     *
+     * @param reservationDTO the reservation data to create
+     * @return the created reservation, or null if the room is not available
+     */
     @Transactional
     public ReservationDTO createReservationIfRoomAvailable(ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("creating reservation if room is available", ReservationService.class.getName(),"createReservationIfRoomAvailable"));
+        pipeline.addFilter(new GenericLoggingFilter<>("creating reservation if room is available", ReservationService.class.getName(), "createReservationIfRoomAvailable"));
         pipeline.addFilter(new ReservationValidFilter());
         pipeline.addFilter(new ReservationTransformationFilter());
 
@@ -99,10 +169,17 @@ public class ReservationService implements CRUDOperations<Reservation> {
         return ReservationMapper.INSTANCE.reservationToDto(reservation);
     }
 
+    /**
+     * Edits a reservation if possible.
+     *
+     * @param currentUser    the current user
+     * @param reservationDTO the reservation data to edit
+     * @return the edited reservation, or null if the reservation could not be edited
+     */
     @Transactional
     public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(),"editReservationIfPossible"));
+        pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(), "editReservationIfPossible"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationEditValidFilter(currentUser));
 
@@ -216,7 +293,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     private ReservationDTO checkIdAndPermission(ReservationDTO reservationDTO, User currentUser) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(),"checkIdAndPermission"));
+        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "checkIdAndPermission"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationPermissionValidFilter(currentUser));
         return pipeline.execute(reservationDTO);

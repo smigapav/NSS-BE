@@ -16,6 +16,13 @@ public class GenericLoggingFilter<T> implements Filter<T> {
         this.methodName = methodName;
     }
 
+    /**
+     * Executes the filter operation.
+     * This method logs a message with the class name and method name.
+     *
+     * @param input the input data to process
+     * @return the processed input data
+     */
     @Override
     public T execute(T input) {
         LOG.info("{}.{}: {}", className, methodName, message);
