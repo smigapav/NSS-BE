@@ -25,13 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
+    private final User user = Generator.generateUser();
     @Autowired
     private TestEntityManager em;
-
     @Autowired
     private UserService sut;
-
-    private final User user = Generator.generateUser();
 
     @BeforeEach
     public void setUp() {

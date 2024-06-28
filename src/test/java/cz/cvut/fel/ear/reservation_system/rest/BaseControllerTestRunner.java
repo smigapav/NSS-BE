@@ -25,9 +25,9 @@ public class BaseControllerTestRunner {
         // We also provide the exception handler and message converters, so that error and data handling works
         // the same as usual
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new RestExceptionHandler())
-                                      .setMessageConverters(createDefaultMessageConverter(),
-                                              createStringEncodingMessageConverter())
-                                      .build();
+                .setMessageConverters(createDefaultMessageConverter(),
+                        createStringEncodingMessageConverter())
+                .build();
     }
 
     String toJson(Object object) throws Exception {

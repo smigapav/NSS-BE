@@ -2,7 +2,10 @@ package cz.cvut.fel.ear.reservation_system.service;
 
 import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.dto.ReservationDTO;
-import cz.cvut.fel.ear.reservation_system.exception.*;
+import cz.cvut.fel.ear.reservation_system.exception.CancellationNotAllowedException;
+import cz.cvut.fel.ear.reservation_system.exception.PaymentNotAllowedException;
+import cz.cvut.fel.ear.reservation_system.exception.ReservationConflictException;
+import cz.cvut.fel.ear.reservation_system.exception.RoomNotAvailableException;
 import cz.cvut.fel.ear.reservation_system.mapping.ReservationMapper;
 import cz.cvut.fel.ear.reservation_system.model.*;
 import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
@@ -146,7 +149,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
     @Transactional
     public ReservationDTO createReservationIfRoomAvailable(ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("creating reservation if room is available", ReservationService.class.getName(),"createReservationIfRoomAvailable"));
+        pipeline.addFilter(new GenericLoggingFilter<>("creating reservation if room is available", ReservationService.class.getName(), "createReservationIfRoomAvailable"));
         pipeline.addFilter(new ReservationValidFilter());
         pipeline.addFilter(new ReservationTransformationFilter());
 
@@ -176,7 +179,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
     @Transactional
     public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(),"editReservationIfPossible"));
+        pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(), "editReservationIfPossible"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationEditValidFilter(currentUser));
 
@@ -290,7 +293,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
 
     private ReservationDTO checkIdAndPermission(ReservationDTO reservationDTO, User currentUser) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
-        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(),"checkIdAndPermission"));
+        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "checkIdAndPermission"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
         pipeline.addFilter(new ReservationPermissionValidFilter(currentUser));
         return pipeline.execute(reservationDTO);

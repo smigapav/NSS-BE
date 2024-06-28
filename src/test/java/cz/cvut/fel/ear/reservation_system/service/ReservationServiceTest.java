@@ -35,22 +35,22 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        reservation = em.find(Reservation.class,3);
-        user = em.find(User.class,1);
+        reservation = em.find(Reservation.class, 3);
+        user = em.find(User.class, 1);
 
     }
 
     @Test
-    public void findByUserTest(){
+    public void findByUserTest() {
         List<Reservation> reservationList = sut.findByUser(user);
         boolean statement = reservationList.contains(reservation);
         Assertions.assertFalse(statement);
-        }
+    }
 
     @Test
-    public void findTest(){
+    public void findTest() {
         int id = 3;
         Reservation reservation1 = sut.read(id);
-        Assertions.assertEquals(reservation,reservation1);
+        Assertions.assertEquals(reservation, reservation1);
     }
 }
