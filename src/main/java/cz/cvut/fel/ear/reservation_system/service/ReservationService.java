@@ -172,7 +172,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
     /**
      * Edits a reservation if possible.
      *
-     * @param currentUser the current user
+     * @param currentUser    the current user
      * @param reservationDTO the reservation data to edit
      * @return the edited reservation, or null if the reservation could not be edited
      */
