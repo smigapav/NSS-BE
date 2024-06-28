@@ -70,7 +70,7 @@ public class SecurityConfig {
         // AllowCredentials requires a particular origin configured, * is rejected by
         // the browser
         // configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://138.2.133.29:3000"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));

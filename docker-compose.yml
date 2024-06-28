@@ -20,3 +20,9 @@ services:
       - NSS_APP_API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
     depends_on:
       - app
+  react_app:
+    build:
+      context: ../nss_room_reservation_fe
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
