@@ -181,7 +181,6 @@ public class ReservationService implements CRUDOperations<Reservation> {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
         pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(), "editReservationIfPossible"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
-        pipeline.addFilter(new ReservationEditValidFilter(currentUser));
 
         ReservationDTO processedReservationDTO = pipeline.execute(reservationDTO);
 
@@ -199,6 +198,9 @@ public class ReservationService implements CRUDOperations<Reservation> {
         }
 
         if (existingReservation.getUser().isAdmin()) {
+            if (!roomService.isAvailable(reservation.getDateFrom(), reservation.getDateTo(), reservation.getRoom())) {
+                throw new ReservationConflictException(HttpStatus.CONFLICT, "The updated reservation conflicts with existing reservations.");
+            }
             if (reservation.getRoom() != null) {
                 existingReservation.setRoom(reservation.getRoom());
             }
@@ -295,7 +297,7 @@ public class ReservationService implements CRUDOperations<Reservation> {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
         pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "checkIdAndPermission"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
-        pipeline.addFilter(new ReservationPermissionValidFilter(currentUser));
+        pipeline.addFilter(new ReservationPermissionValidFilter(currentUser, read(reservationDTO.getId())));
         return pipeline.execute(reservationDTO);
     }
 }

@@ -74,6 +74,7 @@ public class ReservationController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "edit")
     public ResponseEntity<String> editReservation(Authentication authentication, @RequestBody ReservationDTO reservationDTO) {
         try {
