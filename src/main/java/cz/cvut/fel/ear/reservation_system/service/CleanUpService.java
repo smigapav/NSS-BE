@@ -46,5 +46,6 @@ public class CleanUpService {
         LocalDateTime oneDayFromNow = LocalDateTime.now().plusDays(1);
         List<Reservation> reservations = reservationDao.findByStatusAndDateFromBefore(ReservationStatus.NOT_PAID, oneDayFromNow);
         reservationDao.deleteAll(reservations);
+        System.out.println("Deleted " + reservations.size() + " not paid reservations less than one day from now.");
     }
 }
