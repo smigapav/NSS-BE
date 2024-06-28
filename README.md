@@ -15,7 +15,7 @@ Deployment is done by cloning/pulling both FE and BE repos on the server and run
 ```
 which ensures both the main application and the microservice gets compiled and the frontend builds.
 
-- The frontend is accessible on the ip address 138.2.133.29:3000
+- The frontend is accessible on the ip address 138.2.133.29:3000 (Right now DOWN because of oracle cloud, hopefully will work on saturday)
 - The backend is accessible on the ip address 138.2.133.29:8080
 - The microservice is accessible on the ip address 138.2.133.29:8000
 
