@@ -28,7 +28,11 @@ which ensures both the main application and the microservice gets compiled and t
 - REST
 - Production server (Oracle cloud)
 - Pipes and Filters architecture
-- Hazelcast chaching
+- Hazelcast caching
+
+## Documentation
+
+- [Documentation](https://docs.google.com/document/d/1IL0fHTvZv8eG3_6_yrzH8heNe_P5NgZSg5_zFb4Es0o/edit?usp=sharing)
 
 ## Mappers
 
