@@ -19,19 +19,27 @@ which ensures both the main application and the microservice gets compiled and t
 - The backend is accessible on the ip address 138.2.133.29:8080
 - The microservice is accessible on the ip address 138.2.133.29:8000
 
-- Access the app here: [Application](https://138.2.133.29:3000)
+- Access the app here: [Application](http://138.2.133.29:3000)
 
 ## Requirements
-- Java/SpringBoot on backend
-- React/TypeScript/Vite on frontend
-- PostgreSQL database
-- Data in the database
-- Spring security authorization
-- Loggers
-- REST
-- Production server (Oracle cloud)
-- Pipes and Filters architecture
-- Hazelcast caching
+
+### What we have:
+- Technology: Java/SpringBoot + React/TS/Vite
+- Readme in GIT
+- Shared DB (PostgreSQL database)
+- Hazelcast cache
+- Spring security basic auth
+- Interceptors (logger)
+- Interface: Rest
+- Production server: Oracle Cloud
+- Architecture: Pipes and Filters
+- Deployment tutorial
+- 5 design patterns
+- 2 UC per person
+
+### What we don't have:
+- Message queueing
+- Elastic search
 
 ## Documentation
 
