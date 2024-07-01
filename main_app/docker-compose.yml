@@ -18,7 +18,7 @@ services:
       - API_KEY=34b417d5-4b9a-4de7-bc48-ff4b753d1cc3
   nss_cron_ms:
     build:
-      context: ./nss_cron_ms
+      context: ../nss_cron_ms
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
