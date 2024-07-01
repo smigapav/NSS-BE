@@ -1,0 +1,17 @@
+cz.cvut.fel.ear.reservation_system
+cz.cvut.fel.ear.reservation_system.config
+cz.cvut.fel.ear.reservation_system.dao
+cz.cvut.fel.ear.reservation_system.dto
+cz.cvut.fel.ear.reservation_system.exception
+cz.cvut.fel.ear.reservation_system.mapping
+cz.cvut.fel.ear.reservation_system.model
+cz.cvut.fel.ear.reservation_system.pipesandfilters
+cz.cvut.fel.ear.reservation_system.pipesandfilters.filters
+cz.cvut.fel.ear.reservation_system.rest
+cz.cvut.fel.ear.reservation_system.rest.handler
+cz.cvut.fel.ear.reservation_system.rest.util
+cz.cvut.fel.ear.reservation_system.security
+cz.cvut.fel.ear.reservation_system.security.model
+cz.cvut.fel.ear.reservation_system.service
+cz.cvut.fel.ear.reservation_system.service.security
+cz.cvut.fel.ear.reservation_system.util
