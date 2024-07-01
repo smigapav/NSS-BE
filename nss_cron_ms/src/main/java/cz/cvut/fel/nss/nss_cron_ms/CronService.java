@@ -14,6 +14,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * This service is responsible for scheduling tasks using cron expressions.
+ * It uses the singleton scope and is proxied at the target class level.
+ */
 @Service
 @RequiredArgsConstructor
 @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -28,6 +32,11 @@ public class CronService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CronService.class);
 
+    /**
+     * This method is scheduled to run every day at midnight.
+     * It sends a POST request to the NSS_APP_URL with the NSS_APP_APIKEY in the headers.
+     * The purpose of this method is to call the clean up service.
+     */
     @Scheduled(cron = "0 0 0 * * ?")
     public void callCleanUp() {
         HttpHeaders headers = new HttpHeaders();
