@@ -20,6 +20,9 @@ which ensures both the main application and the microservice gets compiled and t
 - The microservice is accessible on the ip address 138.2.133.29:8000
 
 - Access the app here: [Application](http://138.2.133.29:3000)
+- Admin user for testing:
+  - username: pp69
+  - password: 123456
 
 ## Requirements
 
@@ -84,7 +87,7 @@ The application employs several design patterns to enhance its structure and fun
 5. **Factory Method Pattern**: The Spring application initialization process uses the Factory Method pattern.
 ## Docker
 
-Docker is used to containerize the application, providing a consistent environment for it to run in, regardless of the host system. The application and its dependencies are packaged into a Docker image, which can be run as a container on any system with Docker installed. The Docker configuration for the application is specified in the [docker-compose.yml](docker-compose.yml) file.
+Docker is used to containerize the application, providing a consistent environment for it to run in, regardless of the host system. The application and its dependencies are packaged into a Docker image, which can be run as a container on any system with Docker installed. The Docker configuration for the application is specified in the [docker-compose.yml](main_app/docker-compose.yml) file.
 
 ## Running the Application on local
 
