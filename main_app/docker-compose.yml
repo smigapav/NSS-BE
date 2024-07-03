@@ -3,7 +3,7 @@ version: "3"
 services:
   react_app:
     build:
-      context: ../nss_room_reservation_fe
+      context: ../../nss_room_reservation_fe
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
