@@ -4,6 +4,9 @@ import cz.cvut.fel.ear.reservation_system.dao.ReservationDao;
 import cz.cvut.fel.ear.reservation_system.exception.InvalidApiKeyException;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.Pipeline;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.DeleteNotPaidReservationsFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.GenericLoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,9 @@ public class CleanUpService {
      */
     private final ReservationDao reservationDao;
 
+    private final DeleteNotPaidReservationsFilter deleteNotPaidReservationsFilter;
+
+
     /**
      * API key for authentication.
      */
@@ -35,17 +41,17 @@ public class CleanUpService {
     /**
      * Deletes all not paid reservations that are less than one day from now.
      *
-     * @param apiKey the API key for authentication
+     * @param inputApiKey the API key for authentication
      * @throws InvalidApiKeyException if the provided API key is invalid
      */
     @Transactional
-    public void deleteNotPaidReservationsLessThanOneDayFromNow(String apiKey) {
-        if (apiKey != null && !apiKey.equals(this.apiKey)) {
+    public void deleteNotPaidReservationsLessThanOneDayFromNow(String inputApiKey) {
+        if (inputApiKey != null && !inputApiKey.equals(this.apiKey)) {
             throw new InvalidApiKeyException(HttpStatus.UNAUTHORIZED, "Invalid API key");
         }
-        LocalDateTime oneDayFromNow = LocalDateTime.now().plusDays(1);
-        List<Reservation> reservations = reservationDao.findByStatusAndDateFromBefore(ReservationStatus.NOT_PAID, oneDayFromNow);
-        reservationDao.deleteAll(reservations);
-        System.out.println("Deleted " + reservations.size() + " not paid reservations less than one day from now.");
+        Pipeline<String> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>("Starting deletion of not paid reservations less than one day from now", CleanUpService.class.getName(), "deleteNotPaidReservationsLessThanOneDayFromNow"));
+        pipeline.addFilter(deleteNotPaidReservationsFilter);
+        pipeline.execute(inputApiKey);
     }
 }
