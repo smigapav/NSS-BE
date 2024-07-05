@@ -36,10 +36,13 @@ public class RoomAvailabilityFilter implements Filter<Room> {
         List<Reservation> res = reservationDao.findByRoomAndActive(room,
                 List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
 
+        LocalDateTime finalFrom = from != null ? from : LocalDateTime.now();
+        LocalDateTime finalTo = to != null ? to : LocalDateTime.now().plusDays(7);
+
         boolean isAvailable = res.stream().noneMatch(i -> {
             LocalDateTime existingFrom = i.getDateFrom();
             LocalDateTime existingTo = i.getDateTo();
-            return from.isBefore(existingTo) && to.isAfter(existingFrom);
+            return finalFrom.isBefore(existingTo) && finalTo.isAfter(existingFrom);
         });
 
         return isAvailable ? room : null;

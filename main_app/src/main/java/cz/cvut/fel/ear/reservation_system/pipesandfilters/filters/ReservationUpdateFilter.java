@@ -25,7 +25,6 @@ public class ReservationUpdateFilter implements Filter<ReservationDTO> {
     @Override
     public ReservationDTO execute(ReservationDTO reservationDTO) {
         Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(reservationDTO);
-        reservationDao.save(reservation);
         Order order = orderService.findByReservation(reservation);
         orderService.update(order);
         return reservationDTO;
