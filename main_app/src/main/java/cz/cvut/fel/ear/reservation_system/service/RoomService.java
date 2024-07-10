@@ -5,6 +5,8 @@ import cz.cvut.fel.ear.reservation_system.dao.RoomDao;
 import cz.cvut.fel.ear.reservation_system.model.Reservation;
 import cz.cvut.fel.ear.reservation_system.model.ReservationStatus;
 import cz.cvut.fel.ear.reservation_system.model.Room;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.AvailableRoomsFilter;
+import cz.cvut.fel.ear.reservation_system.pipesandfilters.filters.RoomAvailabilityFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,14 +115,10 @@ public class RoomService implements CRUDOperations<Room> {
      */
     @Transactional(readOnly = true)
     public boolean isAvailable(LocalDateTime from, LocalDateTime to, Room room) {
-        List<Reservation> res = reservationDao.findByRoomAndActive(room,
-                List.of(ReservationStatus.PAID, ReservationStatus.NOT_PAID));
-
-        return res.stream().noneMatch(i -> {
-            LocalDateTime existingFrom = i.getDateFrom();
-            LocalDateTime existingTo = i.getDateTo();
-            return from.isBefore(existingTo) && to.isAfter(existingFrom);
-        });
+        RoomAvailabilityFilter filter = new RoomAvailabilityFilter(reservationDao);
+        filter.setFrom(from);
+        filter.setTo(to);
+        return filter.execute(room) != null;
     }
 
     /**
@@ -133,9 +131,8 @@ public class RoomService implements CRUDOperations<Room> {
     @Transactional(readOnly = true)
     public List<Room> findAvailableRooms(LocalDateTime from, LocalDateTime to) {
         List<Room> allRooms = dao.findAll();
-
-        LocalDateTime finalFrom = from != null ? from : LocalDateTime.now();
-        LocalDateTime finalTo = to != null ? to : LocalDateTime.now().plusDays(7);
-        return allRooms.stream().filter(room -> isAvailable(finalFrom, finalTo, room)).collect(Collectors.toList());
+        AvailableRoomsFilter filter = new AvailableRoomsFilter(dao, new RoomAvailabilityFilter(reservationDao));
+        filter.setDates(from, to);
+        return filter.execute(allRooms);
     }
 }

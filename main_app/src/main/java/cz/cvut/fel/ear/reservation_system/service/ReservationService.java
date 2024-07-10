@@ -179,102 +179,71 @@ public class ReservationService implements CRUDOperations<Reservation> {
     @Transactional
     public ReservationDTO editReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        ReservationEditAuthorizationFilter editAuthorizationFilter = new ReservationEditAuthorizationFilter(roomService, reservationDao);
+        editAuthorizationFilter.setCurrentUser(currentUser);
+
         pipeline.addFilter(new GenericLoggingFilter<>("editing reservation if is it possible", ReservationService.class.getName(), "editReservationIfPossible"));
         pipeline.addFilter(new ReservationIdValidFilter(this));
+        pipeline.addFilter(editAuthorizationFilter);
 
         ReservationDTO processedReservationDTO = pipeline.execute(reservationDTO);
 
-        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
-        Reservation existingReservation = read(reservation.getId());
+        update(ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO));
 
-
-        if (currentUser.getRole().equals(Role.STANDARD_USER)) {
-            existingReservation.setDateFrom(reservation.getDateFrom());
-            existingReservation.setDateTo(reservation.getDateTo());
-
-            if (!roomService.isAvailable(existingReservation.getDateFrom(), existingReservation.getDateTo(), existingReservation.getRoom())) {
-                throw new ReservationConflictException(HttpStatus.CONFLICT, "The updated reservation conflicts with existing reservations.");
-            }
-        }
-
-        if (existingReservation.getUser().isAdmin()) {
-            if (!roomService.isAvailable(reservation.getDateFrom(), reservation.getDateTo(), reservation.getRoom())) {
-                throw new ReservationConflictException(HttpStatus.CONFLICT, "The updated reservation conflicts with existing reservations.");
-            }
-            if (reservation.getRoom() != null) {
-                existingReservation.setRoom(reservation.getRoom());
-            }
-
-            if (reservation.getDateFrom() != null) {
-                existingReservation.setDateFrom(reservation.getDateFrom());
-            }
-
-            if (reservation.getDateTo() != null) {
-                existingReservation.setDateTo(reservation.getDateTo());
-            }
-
-            if (reservation.getCreatedAt() != null) {
-                existingReservation.setCreatedAt(reservation.getCreatedAt());
-            }
-        }
-
-        update(existingReservation);
-
-        return ReservationMapper.INSTANCE.reservationToDto(reservation);
+        return processedReservationDTO;
     }
 
+    /**
+     * Attempts to cancel a reservation if possible based on the current user and reservation details.
+     * This method orchestrates a pipeline of filters to validate the reservation ID, check user permissions,
+     * and apply cancellation logic. The cancellation logic is encapsulated within the {@link ReservationStornoFilter}.
+     *
+     * @param currentUser    The current user attempting to cancel the reservation.
+     * @param reservationDTO The reservation data transfer object containing details of the reservation to be cancelled.
+     * @return The updated {@link ReservationDTO} after attempting cancellation.
+     * @throws CancellationNotAllowedException If the cancellation is not allowed based on the reservation status or user permissions.
+     */
     @Transactional
     public ReservationDTO stornoReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        ReservationDTO processedReservationDTO = checkIdAndPermission(reservationDTO, currentUser);
+        Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "stornoReservationIfPossible"));
+        pipeline.addFilter(new ReservationIdValidFilter(this));
+        pipeline.addFilter(new ReservationPermissionValidFilter(currentUser, read(reservationDTO.getId())));
+        pipeline.addFilter(new ReservationStornoFilter(reservationDao));
 
-        Reservation reservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
-        Reservation existingReservation = read(reservation.getId());
-
-        if (existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) {
-            existingReservation.setStatus(ReservationStatus.CANCELLED);
-        } else if (existingReservation.getStatus().equals(ReservationStatus.PAID)) {
-            existingReservation.setStatus(ReservationStatus.STORNO_REQUEST);
-        } else {
-            throw new CancellationNotAllowedException(HttpStatus.BAD_REQUEST, "You cannot cancel this reservation.");
-        }
-
-        update(existingReservation);
-
-        return ReservationMapper.INSTANCE.reservationToDto(existingReservation);
+        return pipeline.execute(reservationDTO);
     }
 
+    /**
+     * Attempts to process payment for a reservation if possible based on the current user and reservation details.
+     * This method uses a pipeline of filters to validate the reservation ID, check user permissions, process the payment,
+     * and update the reservation status. Payment processing and reservation update logic are encapsulated within
+     * the {@link ReservationPaymentFilter} and {@link ReservationUpdateFilter} respectively.
+     *
+     * @param currentUser    The current user attempting to pay for the reservation.
+     * @param reservationDTO The reservation data transfer object containing details of the reservation for which payment is being made.
+     * @return The updated {@link ReservationDTO} after attempting payment.
+     * @throws PaymentNotAllowedException If the payment is not allowed based on the reservation status or user permissions.
+     */
     @Transactional
     public ReservationDTO payReservationIfPossible(User currentUser, ReservationDTO reservationDTO) {
-        ReservationDTO processedReservationDTO = checkIdAndPermission(reservationDTO, currentUser);
+        Pipeline<ReservationDTO> pipeline = new Pipeline<>();
+        pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "payReservationIfPossible"));
+        pipeline.addFilter(new ReservationIdValidFilter(this));
+        pipeline.addFilter(new ReservationPermissionValidFilter(currentUser, read(reservationDTO.getId())));
+        pipeline.addFilter(new ReservationPaymentFilter(orderService));
+        pipeline.addFilter(new ReservationUpdateFilter(reservationDao, orderService));
 
-        Reservation existingReservation = ReservationMapper.INSTANCE.dtoToReservation(processedReservationDTO);
-
-        Order order = orderService.findByReservation(existingReservation);
-
-        if (existingReservation.getStatus().equals(ReservationStatus.NOT_PAID)) {
-            long hours = Duration.between(existingReservation.getDateFrom(), existingReservation.getDateTo()).toHours();
-            order.setTotalPrice(existingReservation.getRoom().getHourlyRate() * hours);
-            order.setConfirmedAt(LocalDateTime.now());
-
-            orderService.update(order);
-
-            existingReservation.setStatus(ReservationStatus.PAID);
-        } else if (existingReservation.getStatus().equals(ReservationStatus.STORNO_REQUEST)) {
-            order.setTotalPrice(existingReservation.getRoom().getStornoFee());
-            order.setConfirmedAt(LocalDateTime.now());
-
-            orderService.update(order);
-
-            existingReservation.setStatus(ReservationStatus.CANCELLED);
-        } else {
-            throw new PaymentNotAllowedException(HttpStatus.BAD_REQUEST, "You cannot pay this reservation.");
-        }
-
-        update(existingReservation);
-
-        return ReservationMapper.INSTANCE.reservationToDto(existingReservation);
+        return pipeline.execute(reservationDTO);
     }
 
+    /**
+     * Generates a response body for the storno (cancellation) endpoint based on the updated reservation status.
+     * This method provides a user-friendly message indicating the result of a cancellation request.
+     *
+     * @param updatedReservation The reservation after attempting cancellation.
+     * @return A {@link String} message indicating the outcome of the cancellation request.
+     */
     public String getStornoEndpointBody(Reservation updatedReservation) {
         if (updatedReservation.getStatus().equals(ReservationStatus.CANCELLED)) {
             return "Reservation has been cancelled successfully.";
@@ -284,6 +253,13 @@ public class ReservationService implements CRUDOperations<Reservation> {
         return null;
     }
 
+    /**
+     * Generates a response body for the payment endpoint based on the updated reservation status.
+     * This method provides a user-friendly message indicating the result of a payment request.
+     *
+     * @param updatedReservation The reservation after attempting payment.
+     * @return A {@link String} message indicating the outcome of the payment request.
+     */
     public String getPayEndpointBody(Reservation updatedReservation) {
         if (updatedReservation.getStatus().equals(ReservationStatus.CANCELLED)) {
             return "Reservation has been cancelled successfully.";
@@ -293,6 +269,14 @@ public class ReservationService implements CRUDOperations<Reservation> {
         return null;
     }
 
+    /**
+     * Validates the reservation ID and checks if the current user has permission to perform actions on the reservation.
+     * This method orchestrates a pipeline of filters to ensure the reservation exists and the user has appropriate permissions.
+     *
+     * @param reservationDTO The reservation data transfer object containing the reservation ID to check.
+     * @param currentUser    The current user whose permissions are being verified.
+     * @return The validated and permission-checked {@link ReservationDTO}.
+     */
     private ReservationDTO checkIdAndPermission(ReservationDTO reservationDTO, User currentUser) {
         Pipeline<ReservationDTO> pipeline = new Pipeline<>();
         pipeline.addFilter(new GenericLoggingFilter<>("checking reservation id and permission", ReservationService.class.getName(), "checkIdAndPermission"));
